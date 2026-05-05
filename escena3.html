@@ -7,28 +7,22 @@
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     
     <script>
-      // Componente ultra-sencillo para mover la palabra
       AFRAME.registerComponent('movible', {
         init: function () {
           this.grabbed = false;
           
-          // Al hacer clic (o tocar en celular)
           this.el.addEventListener('mousedown', () => { this.grabbed = true; });
           
-          // Al soltar el clic
           window.addEventListener('mouseup', () => { 
             if(this.grabbed) {
               this.grabbed = false;
-              checkWin(); // Verificamos si ganó
+              checkWin();
             }
           });
 
-          // Mientras movemos el mouse
           window.addEventListener('mousemove', (e) => {
             if (this.grabbed) {
-              // Obtenemos la posición actual
               let pos = this.el.getAttribute('position');
-              // Multiplicamos por un factor pequeño para que el movimiento sea suave
               pos.x += e.movementX * 0.01;
               pos.y -= e.movementY * 0.01;
               this.el.setAttribute('position', pos);
@@ -39,14 +33,18 @@
 
       function checkWin() {
         const palabra = document.querySelector('#palabraMagica').object3D.position;
-        // Si la palabra está cerca del centro (donde está el avatar)
+        // Se soltar a palavra perto do centro (onde o avatar está no telemóvel)
         if (palabra.x > -1.5 && palabra.x < 1.5 && palabra.y > 0 && palabra.y < 2.5) {
             document.querySelector('#pista').setAttribute('value', '¡INCREÍBLE! Pensamiento lateral activado.');
             document.querySelector('#pista').setAttribute('color', '#00FF00');
-            document.querySelector('#fondo').setAttribute('color', '#004d00'); // Fondo verde victoria
+            document.querySelector('#fondo').setAttribute('color', '#004d00');
             
-            // Efecto: El avatar se vuelve gigante de la emoción
-            document.querySelector('#avatarEntity').setAttribute('animation', 'property: scale; to: 2.5 2.5 2.5; dur: 1000');
+            document.querySelector('#avatarEntity').setAttribute('animation', 'property: scale; to: 1.8 1.8 1.8; dur: 1000');
+            
+            setTimeout(() => {
+                alert("¡Has completado todos los niveles de gamificación!");
+                window.location.href = "index.html";
+            }, 2000);
         }
       }
     </script>
@@ -57,25 +55,23 @@
         <a-asset-item id="mi_avatar" src="mi_avatar.glb"></a-asset-item>
       </a-assets>
 
-    <//a-sky id="fondo" color="#050505"><//a-sky>
+      <a-sky id="fondo" color="#050505"></a-sky>
 
-      <a-text id="pista" 
-              value="Para pasar, el avatar debe ser VERDE" 
-              position="0 3.5 -3" align="center" width="5" font="roboto"></a-text>
+      <a-text id="pista" value="Haz que el avatar sea VERDE" position="0 2 -2" align="center" width="4" font="roboto"></a-text>
 
-      <a-entity id="palabraMagica" position="1.2 3.5 -2.9" movible>
-             <a-text value="VERDE" color="#00FF00" align="center" scale="2.5 2.5 2.5"></a-text>
+      <a-entity id="palabraMagica" position="0.8 1.3 -1.8" movible>
+             <a-text value="VERDE" color="#00FF00" align="center" scale="2 2 2" font="roboto"></a-text>
              <a-box opacity="0" width="0.8" height="0.4" depth="0.1"></a-box>
       </a-entity>
 
-      <a-entity id="avatarEntity"
+      <a-entity id="avatarEntity" 
                 gltf-model="#mi_avatar" 
-                position="0 0 -4" 
-                scale="1.5 1.5 1.5"
+                position="0 0 -2.5" 
+                scale="1.1 1.1 1.1"
                 animation-mixer="clip: *">
       </a-entity>
 
-      <a-camera look-controls-enabled="false">
+      <a-camera position="0 1.6 0">
         <a-cursor color="yellow" visible="false"></a-cursor>
       </a-camera>
     </a-scene>

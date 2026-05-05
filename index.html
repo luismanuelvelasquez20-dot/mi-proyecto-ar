@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 1 - Introducción</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-light type="ambient" color="#FFF"></a-light>
+      <a-light type="directional" position="-1 1 1" intensity="0.5"></a-light>
+      
+    <//a-sky color="#6EBAFF"><//a-sky> 
+
+    <a-camera position="0 1.6 0">
+  <a-cursor color="#FF0000"></a-cursor>
+</a-camera>
+<a-sphere id="pieza1" 
+          position="2 1.2 -3" 
+          radius="0.2" 
+          color="#FFD700" 
+          visible="false"
+          onclick="piezaEncontrada()"
+          animation="property: position; dur: 1000; easing: easeInOutQuad">
+</a-sphere>
+<a-entity id="personaje" 
+          gltf-model="#avatar" 
+          position="0 1.2 -4" 
+          scale="1 1 1"
+          animation-mixer="clip: *;"
+          class="entidad-clicable"
+          onclick="empezarJuego()">
+</a-entity>
+
+<a-box id="botonCertificado" 
+       position="0 -10 -1.5" 
+       width="1.8" height="0.6" depth="0.1" 
+       color="#4CAF50" 
+       visible="false"
+       class="boton-clicable"
+       onclick="descargarCertificado()">
+    <a-text value="OBTENER DIPLOMA" align="center" position="0 0 0.12" width="4"></a-text>
+</a-box>
+<a-text id="instrucciones" 
+        value="Toca al avatar para iniciar" 
+        position="0 2.5 -2.5" 
+        color="yellow" 
+        align="center"
+        width="4">
+</a-text>
+
+<a-text id="marcador" 
+        value="Puntos: 0" 
+        position="-1.5 3 -2.5" 
+        color="white" 
+        width="3">
+</a-text>
+</a-scene>
+
+    <script>
+      let puntos = 0;
+
+function empezarJuego() {
+    // Al tocar el avatar, SOLO activamos la esfera y el texto.
+    // NO debe haber ningún "window.location.href" aquí.
+    document.querySelector('#instrucciones').setAttribute('value', '¡Misión Iniciada! Busca la esfera');
+    document.querySelector('#pieza1').setAttribute('visible', 'true');
+}
+
+function piezaEncontrada() {
+    puntos += 10;
+    document.querySelector('#marcador').setAttribute('value', 'Puntos: ' + puntos);
+    
+    if (puntos >= 50) {
+        // 1. Cambiamos el texto
+        document.querySelector('#instrucciones').setAttribute('value', '¡LOGRADO! Toca el diploma');
+        
+        // 2. Escondemos la esfera
+        document.querySelector('#pieza1').setAttribute('visible', 'false');
+        
+        // 3. Traemos el botón del "subsuelo" al frente
+        const btn = document.querySelector('#botonCertificado');
+        btn.setAttribute('visible', 'true');
+        btn.setAttribute('position', '0 1 -2'); 
+    } else {
+        // Si aún no llega a 50, la esfera se mueve
+        let nuevaX = (Math.random() * 4) - 2;
+        let nuevaY = (Math.random() * 2) + 1;
+        let nuevaZ = (Math.random() * -3) - 1;
+        document.querySelector('#pieza1').setAttribute('position', `${nuevaX} ${nuevaY} ${nuevaZ}`);
+    }
+}
+
+
+// ESTA función es la única que debe tener el salto de página
+function descargarCertificado() {
+    document.querySelector('#instrucciones').setAttribute('value', '¡VIAJANDO AL NIVEL 2!');
+    
+    setTimeout(() => {
+        window.location.href = "escena2.html"; 
+    }, 1500);
+}
+
+    </script>
+  </body>
+</html>

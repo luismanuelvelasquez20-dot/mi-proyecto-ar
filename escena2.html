@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 2 - Teoría y Gestión</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-plane position="0 0 0" rotation="-90 0 0" width="20" height="20" color="#333" roughness="1"></a-plane>
+
+    <//a-sky color="#1a1a2e"><//a-sky> 
+
+      <a-entity gltf-model="#avatar" 
+                position="0 0 -4" 
+                scale="1.5 1.5 1.5"
+                animation-mixer="clip: *"> 
+        </a-entity>
+
+      <a-text value="SISTEMA DE GAMIFICACION 3D" 
+              position="0 3.2 -3" 
+              align="center" 
+              color="#FFD700" 
+              width="5"
+              font="kelsonsans">
+      </a-text>
+      
+      <a-text value="Toca los paneles para explorar los conceptos clave de la Maestría." 
+              position="0 2.8 -3" 
+              align="center" 
+              color="white" 
+              width="3.5">
+      </a-text>
+
+      <a-entity id="panel1" position="-2 1.5 -2.5" onclick="mostrarDetalle('1')">
+        <a-box color="#444" width="1.5" height="1" depth="0.1" roughness="1">
+          <a-text value="1. Motivacion" align="center" position="0 0.3 0.06" width="3" color="#FFF"></a-text>
+          <a-text value="El poder de los puntos." align="center" position="0 -0.2 0.06" width="2" color="#BBB"></a-text>
+        </a-box>
+      </a-entity>
+
+      <a-entity id="panel2" position="2 1.5 -2.5" onclick="mostrarDetalle('2')">
+        <a-box color="#444" width="1.5" height="1" depth="0.1" roughness="1">
+          <a-text value="2. Inmersion" align="center" position="0 0.3 0.06" width="3" color="#FFF"></a-text>
+          <a-text value="Avares y mundos." align="center" position="0 -0.2 0.06" width="2" color="#BBB"></a-text>
+        </a-box>
+      </a-entity>
+
+      <a-box id="panelDetalle" 
+       position="0 1.5 -1.5" 
+       width="2.5" height="1.8" depth="0.1" 
+       color="#222" 
+       visible="false"
+       onclick="cerrarDetalle()">
+    
+    <a-text id="textoDetalleTitle" 
+            value="DETALLE" 
+            font="roboto"
+            align="center" 
+            position="0 0.6 0.06" 
+            width="2.2" 
+            color="#00FF00"
+            wrap-count="20"></a-text> <a-text id="textoDetalleBody" 
+            value="..." 
+            font="roboto"
+            align="center" 
+            position="0 -0.1 0.06" 
+            width="2.2" 
+            color="#FFF"
+            wrap-count="30"></a-text> <a-text value="[ Toca para cerrar ]" 
+            align="center" 
+            position="0 -0.7 0.06" 
+            width="1.5" 
+            color="#BBB"
+            wrap-count="25"></a-text>
+</a-box>
+
+      <a-box id="botonVolver" 
+             position="0 0.5 -1.5" 
+             width="1.2" height="0.4" depth="0.1" 
+             color="#F44336" 
+             onclick="window.location.href = 'index.html'">
+          <a-text value="VOLVER A JUGAR" align="center" position="0 0 0.06" width="3" color="white"></a-text>
+      </a-box>
+      <a-box id="botonNivel3" 
+       position="1.5 0.5 -1.5" 
+       width="1.2" height="0.4" depth="0.1" 
+       color="#4CAF50" 
+       onclick="window.location.href = 'escena3.html'">
+    <a-text value="NIVEL 2: MARCO TEORICO" 
+        font="roboto"
+        position="0 3.2 -3" 
+        align="center" 
+        color="#FFD700" 
+        width="5">
+</a-text>
+</a-box>
+
+      <a-light type="ambient" color="#BBB"></a-light>
+      <a-light type="directional" color="#FFF" intensity="0.5" position="-0.5 1 1"></a-light>
+      
+      <a-camera>
+        <a-cursor color="yellow"></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script>
+      const info1 = {
+  titulo: "MECANICAS DE JUEGO",
+  cuerpo: "El uso de puntos y retos\nen la escena aumenta la\nmotivacion, manteniendo al\nestudiante enfocado."
+};
+
+const info2 = {
+  titulo: "INMERSION 3D",
+  cuerpo: "Los avatares crean una\nconexion emocional que\nfacilita el aprendizaje\nsignificativo."
+};
+
+      // Función que se activa al tocar un panel pequeño
+      function mostrarDetalle(id) {
+        const panel = document.querySelector('#panelDetalle');
+        const titulo = document.querySelector('#textoDetalleTitle');
+        const cuerpo = document.querySelector('#textoDetalleBody');
+
+        // Elegimos qué información mostrar según el panel tocado
+        if (id === '1') {
+          titulo.setAttribute('value', info1.titulo);
+          cuerpo.setAttribute('value', info1.cuerpo);
+        } else if (id === '2') {
+          titulo.setAttribute('value', info2.titulo);
+          cuerpo.setAttribute('value', info2.cuerpo);
+        }
+
+        panel.setAttribute('visible', 'true'); // Hacemos visible el panel grande
+      }
+
+      // Función para cerrar el panel grande
+      function cerrarDetalle() {
+        document.querySelector('#panelDetalle').setAttribute('visible', 'false');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 7 - El Quiz de Reflejos</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-sky id="fondo" color="#03020d"></a-sky>
+
+      <a-light type="ambient" color="#FFF" intensity="0.5"></a-light>
+      <a-light type="directional" color="#3B82F6" intensity="0.8" position="0 3 1"></a-light>
+
+      <a-text id="titulo" 
+              value="NIVEL 7: QUIZ DE REFLEJOS" 
+              font="roboto" 
+              position="0 3.3 -2.5" 
+              align="center" 
+              color="#FFD700" 
+              width="4.5">
+      </a-text>
+
+      <a-text id="indicaciones" 
+              value="¡Toca solo las palabras POSITIVAS!" 
+              font="roboto" 
+              position="0 2.7 -2.2" 
+              align="center" 
+              color="#FFF" 
+              width="3.8">
+      </a-text>
+
+      <a-text id="marcador" 
+              value="Aciertos: 0 / 3" 
+              font="roboto" 
+              position="0 2.3 -2.2" 
+              align="center" 
+              color="#00FFCC" 
+              width="3">
+      </a-text>
+
+      <a-entity id="avatarQuiz"
+                gltf-model="#avatar" 
+                position="0 0 -2.5" 
+                scale="1.2 1.2 1.2"
+                animation-mixer="clip: *">
+      </a-entity>
+
+      <a-entity id="palabraPositiva1" 
+                position="-3 1.5 -1.8"
+                animation="property: position; to: 3 1.5 -1.8; dur: 4500; loop: true; easing: linear">
+          <a-text value="MOTIVACION" color="#00FFFF" align="center" width="2.5" font="roboto" onclick="presionarPalabra(true, 'palabraPositiva1')"></a-text>
+          <a-box opacity="0" width="1" height="0.3" depth="0.1" onclick="presionarPalabra(true, 'palabraPositiva1')"></a-box>
+      </a-entity>
+
+      <a-entity id="palabraNegativa1" 
+                position="-3 1.0 -1.6"
+                animation="property: position; to: 3 1.0 -1.6; dur: 5500; loop: true; easing: linear; delay: 1000">
+          <a-text value="ABURRIMIENTO" color="#FF4444" align="center" width="2.5" font="roboto" onclick="presionarPalabra(false, 'palabraNegativa1')"></a-text>
+          <a-box opacity="0" width="1.2" height="0.3" depth="0.1" onclick="presionarPalabra(false, 'palabraNegativa1')"></a-box>
+      </a-entity>
+
+      <a-entity id="palabraPositiva2" 
+                position="3 1.8 -1.7"
+                animation="property: position; to: -3 1.8 -1.7; dur: 5000; loop: true; easing: linear; delay: 500">
+          <a-text value="FEEDBACK" color="#00FF66" align="center" width="2.5" font="roboto" onclick="presionarPalabra(true, 'palabraPositiva2')"></a-text>
+          <a-box opacity="0" width="1" height="0.3" depth="0.1" onclick="presionarPalabra(true, 'palabraPositiva2')"></a-box>
+      </a-entity>
+
+      <a-entity id="palabraNegativa2" 
+                position="3 0.7 -1.5"
+                animation="property: position; to: -3 0.7 -1.5; dur: 6000; loop: true; easing: linear; delay: 1500">
+          <a-text value="MEMORIZAR" color="#FF8800" align="center" width="2.5" font="roboto" onclick="presionarPalabra(false, 'palabraNegativa2')"></a-text>
+          <a-box opacity="0" width="1.2" height="0.3" depth="0.1" onclick="presionarPalabra(false, 'palabraNegativa2')"></a-box>
+      </a-entity>
+
+      <a-camera position="0 1.6 0">
+        <a-cursor color="yellow" visible="false"></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script>
+      let aciertos = 0;
+      const metaAciertos = 3;
+
+      function presionarPalabra(esPositiva, idElemento) {
+        const elemento = document.querySelector('#' + idElemento);
+        
+        if (esPositiva) {
+          aciertos++;
+          document.querySelector('#indicaciones').setAttribute('value', "¡Bien! Eso suma al aprendizaje.");
+          document.querySelector('#indicaciones').setAttribute('color', '#00FF66');
+          
+          // Efecto de desaparecer la palabra acertada temporalmente mandándola lejos
+          elemento.setAttribute('position', '-10 1.5 -1.8');
+          
+          // Actualizar UI
+          document.querySelector('#marcador').setAttribute('value', `Aciertos: ${aciertos} / ${metaAciertos}`);
+
+          if (aciertos >= metaAciertos) {
+            completarNivel();
+          } else {
+            // Regresa la palabra al flujo después de 2 segundos
+            setTimeout(() => {
+              elemento.setAttribute('position', '-3 1.5 -1.8');
+            }, 2000);
+          }
+        } else {
+          // Si es negativa, penaliza bajando un acierto (mínimo 0)
+          if (aciertos > 0) aciertos--;
+          document.querySelector('#indicaciones').setAttribute('value', "¡No! Eso corta el flujo.");
+          document.querySelector('#indicaciones').setAttribute('color', '#FF4444');
+          
+          // Hacer temblar el avatar de desaprobación
+          const avatar = document.querySelector('#avatarQuiz');
+          avatar.setAttribute('animation', 'property: position; to: 0.1 0 -2.5; dir: alternate; dur: 80; loop: 4');
+          
+          document.querySelector('#marcador').setAttribute('value', `Aciertos: ${aciertos} / ${metaAciertos}`);
+
+          setTimeout(() => {
+            avatar.setAttribute('position', '0 0 -2.5');
+            avatar.removeAttribute('animation');
+            document.querySelector('#indicaciones').setAttribute('value', "¡Toca solo las palabras POSITIVAS!");
+            document.querySelector('#indicaciones').setAttribute('color', '#FFF');
+          }, 1000);
+        }
+      }
+
+      function completarNivel() {
+        // Detener todas las palabras mandándolas fuera
+        document.querySelector('#palabraPositiva1').setAttribute('visible', 'false');
+        document.querySelector('#palabraPositiva2').setAttribute('visible', 'false');
+        document.querySelector('#palabraNegativa1').setAttribute('visible', 'false');
+        document.querySelector('#palabraNegativa2').setAttribute('visible', 'false');
+
+        document.querySelector('#indicaciones').setAttribute('value', "¡REFLEJOS AL MÁXIMO! Nivel superado.");
+        document.querySelector('#indicaciones').setAttribute('color', '#FFD700');
+
+        // Gran salto de victoria del avatar
+        document.querySelector('#avatarQuiz').setAttribute('animation', 'property: position; to: 0 0.5 -2.5; dir: alternate; dur: 300; loop: 4');
+
+        setTimeout(() => {
+          alert("¡Nivel 7 superado! Cargando el gran final: El Rompecabezas del Conocimiento.");
+          window.location.href = "escena8.html"; // <-- Aquí mandamos al rompecabezas de 4x4
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Reflexión Final - Realidad Aumentada y Gamificación</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-sky id="fondo" color="#090514"></a-sky>
+
+      <a-light type="ambient" color="#FFF" intensity="0.5"></a-light>
+      <a-light type="directional" color="#A855F7" intensity="0.8" position="0 3 1"></a-light>
+
+      <a-text id="titulo" 
+              value="REFLEXION DE LA EXPERIENCIA" 
+              font="roboto" 
+              position="0 3.3 -2.5" 
+              align="center" 
+              color="#FFD700" 
+              width="4.5">
+      </a-text>
+
+      <a-text id="indicaciones" 
+              value="Toca los paneles flotantes para descubrir\nlas conclusiones clave de esta aventura." 
+              font="roboto" 
+              position="0 2.8 -2.2" 
+              align="center" 
+              color="#E2E8F0" 
+              width="3.5">
+      </a-text>
+
+      <a-entity id="avatarReflexion"
+                gltf-model="#avatar" 
+                position="-1.3 0 -2.3" 
+                scale="1.1 1.1 1.1"
+                animation-mixer="clip: *">
+      </a-entity>
+
+      <a-box id="panel1" 
+             position="0.5 1.9 -2" 
+             width="1.1" height="0.4" depth="0.05" 
+             color="#3B82F6" 
+             onclick="revelarMensaje(1, 'El estudiante deja de ser un espectador pasivo para convertirse en el protagonista de su propio descubrimiento.')">
+          <a-text id="textPanel1" value="Aprendizaje Activo\n(Tocar)" align="center" position="0 0 0.03" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-box id="panel2" 
+             position="0.5 1.3 -2" 
+             width="1.1" height="0.4" depth="0.05" 
+             color="#10B981" 
+             onclick="revelarMensaje(2, 'La visualización 3D y la interactividad facilitan la transferencia de conceptos abstractos a la memoria de largo plazo.')">
+          <a-text id="textPanel2" value="Retencion Visual\n(Tocar)" align="center" position="0 0 0.03" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-box id="panel3" 
+             position="0.5 0.7 -2" 
+             width="1.1" height="0.4" depth="0.05" 
+             color="#F59E0B" 
+             onclick="revelarMensaje(3, 'Los desafíos lúdicos, el feedback inmediato y la superación de metas despiertan el deseo natural de aprender.')">
+          <a-text id="textPanel3" value="Motivacion Real\n(Tocar)" align="center" position="0 0 0.03" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-plane id="pizarraDetalle" 
+               position="-0.6 1.3 -2.2" 
+               width="1.2" height="1.6" 
+               color="#111827" 
+               visible="true"
+               material="roughness: 1">
+          <a-text id="textoExplicativo" 
+                  value="Selecciona un concepto de la derecha para profundizar en su impacto educativo..." 
+                  align="center" 
+                  position="0 0 0.05" 
+                  width="2.2" 
+                  color="#F3F4F6" 
+                  font="roboto"
+                  wrap-count="24"></a-text>
+      </a-plane>
+
+      <a-box id="botonVideo" 
+             position="0 -0.2 -1.8" 
+             width="1.4" height="0.3" depth="0.1" 
+             color="#EF4444" 
+             onclick="irAVideo()">
+          <a-text value="VER INTRODUCCION A LA AR" align="center" position="0 0 0.06" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-camera position="0 1.6 0">
+        <a-cursor color="yellow" visible="false"></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script>
+      function revelarMensaje(numero, mensaje) {
+        // Actualiza el texto de la pizarra del fondo
+        const pizarra = document.querySelector('#textoExplicativo');
+        pizarra.setAttribute('value', mensaje);
+        pizarra.setAttribute('color', '#F3F4F6');
+
+        // Pequeño efecto visual de escala en la tarjeta seleccionada para dar feedback táctil
+        const panelSeleccionado = document.querySelector('#panel' + numero);
+        panelSeleccionado.setAttribute('animation', 'property: scale; to: 1.1 1.1 1.1; dur: 150; dir: alternate; loop: 2');
+        
+        setTimeout(() => {
+          panelSeleccionado.removeAttribute('animation');
+        }, 400);
+      }
+
+      function irAVideo() {
+        alert("Abriendo video introductorio sobre herramientas de Realidad Aumentada...");
+        // Enlace a un excelente video introductorio sobre el desarrollo y conceptos de Realidad Aumentada
+        window.location.href = "https://www.youtube.com/watch?v=kYorAsZf27c";
+      }
+    </script>
+  </body>
+</html>

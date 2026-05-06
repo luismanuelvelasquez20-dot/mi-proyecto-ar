@@ -7,7 +7,10 @@
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
   <body>
-    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" 
+             cursor="rayOrigin: mouse; interval: 10"
+             device-orientation-permission-ui="enabled: false"
+             vr-mode-ui="enabled: false">
       
       <a-assets>
         <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 5 - El Laberinto de la Motivación</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-sky id="fondo" color="#05020a"></a-sky>
+
+      <a-light type="ambient" color="#FFF" intensity="0.5"></a-light>
+      <a-light type="directional" color="#FF00FF" intensity="0.8" position="-1 3 1"></a-light>
+
+      <a-text id="titulo" 
+              value="NIVEL 5: EL LABERINTO" 
+              font="roboto" 
+              position="0 3.2 -2.5" 
+              align="center" 
+              color="#FFD700" 
+              width="4.5">
+      </a-text>
+
+      <a-text id="pregunta" 
+              value="¿Qué factor DESTRUYE la motivación\nen un entorno de aprendizaje?" 
+              font="roboto" 
+              position="0 2.5 -2.2" 
+              align="center" 
+              color="#FFF" 
+              width="3.8">
+      </a-text>
+
+      <a-entity id="avatarGuiado"
+                gltf-model="#avatar" 
+                position="0 0 -3" 
+                scale="1.1 1.1 1.1"
+                animation-mixer="clip: *">
+      </a-entity>
+
+      <a-box id="puertaRoja" 
+             position="-1.3 0.8 -1.8" 
+             width="0.8" height="1.4" depth="0.1" 
+             color="#FF4444" 
+             opacity="0.85"
+             onclick="elegirPuerta('roja')">
+          <a-text value="Feedback\nConstante" align="center" position="0 0 0.06" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-box id="puertaAzul" 
+             position="0 0.8 -1.8" 
+             width="0.8" height="1.4" depth="0.1" 
+             color="#3B82F6" 
+             opacity="0.85"
+             onclick="elegirPuerta('azul')">
+          <a-text value="Falta de\nObjetivos" align="center" position="0 0 0.06" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-box id="puertaAmarilla" 
+             position="1.3 0.8 -1.8" 
+             width="0.8" height="1.4" depth="0.1" 
+             color="#FBBF24" 
+             opacity="0.85"
+             onclick="elegirPuerta('amarilla')">
+          <a-text value="Recompensas\nClaras" align="center" position="0 0 0.06" width="2" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-camera position="0 1.6 0">
+        <a-cursor color="yellow" visible="false"></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script>
+      function elegirPuerta(color) {
+        if (color === 'azul') {
+          // ¡Correcto! Animación de abrir la puerta azul girándola
+          const puerta = document.querySelector('#puertaAzul');
+          puerta.setAttribute('animation', 'property: rotation; to: 0 90 0; dur: 1000; easing: easeInOutQuad');
+          
+          document.querySelector('#pregunta').setAttribute('value', "¡Correcto! El avatar avanza.");
+          document.querySelector('#pregunta').setAttribute('color', '#00FFCC');
+
+          // Hacemos que el avatar camine hacia adelante (se acerca en el eje Z)
+          document.querySelector('#avatarGuiado').setAttribute('animation', 'property: position; to: 0 0 -1.5; dur: 1500; easing: easeOutQuad');
+
+          // Ocultamos las otras puertas para limpiar la escena
+          setTimeout(() => {
+            document.querySelector('#puertaRoja').setAttribute('visible', 'false');
+            document.querySelector('#puertaAmarilla').setAttribute('visible', 'false');
+          }, 500);
+
+          // Transición al siguiente nivel después de ver al avatar avanzar
+          setTimeout(() => {
+            alert("¡Laberinto superado! Pasando al Nivel 6: El Buscador de Evidencias.");
+            window.location.href = "escena6.html"; // Apuntará al Nivel 6
+          }, 2500);
+
+        } else {
+          // Incorrecto: La puerta vibra un poco de color rojo
+          const puertaIncorrecta = color === 'roja' ? '#puertaRoja' : '#puertaAmarilla';
+          const el = document.querySelector(puertaIncorrecta);
+          
+          document.querySelector('#pregunta').setAttribute('value', "¡Esa opción estimula, no destruye!");
+          document.querySelector('#pregunta').setAttribute('color', '#EF4444');
+          
+          el.setAttribute('animation', 'property: position; dir: alternate; dur: 100; to: ' + el.getAttribute('position').x + ' 0.9 -1.8; loop: 4');
+
+          setTimeout(() => {
+            document.querySelector('#pregunta').setAttribute('value', "¿Qué factor DESTRUYE la motivación\nen un entorno de aprendizaje?");
+            document.querySelector('#pregunta').setAttribute('color', '#FFF');
+            // Restauramos la posición inicial de la puerta
+            if (color === 'roja') {
+              el.setAttribute('position', '-1.3 0.8 -1.8');
+            } else {
+              el.setAttribute('position', '1.3 0.8 -1.8');
+            }
+          }, 2000);
+        }
+      }
+    </script>
+  </body>
+</html>

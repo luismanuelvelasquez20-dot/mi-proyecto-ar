@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 2 - Teoria y Gestion</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene cursor="rayOrigin: mouse; interval: 10" raycaster="objects: .clickable">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-sky color="#0f0f14"></a-sky> 
+
+      <a-text value="NIVEL 2: MARCO TEORICO" 
+              font="roboto"
+              position="0 3.2 -3" 
+              align="center" 
+              color="#FFD700" 
+              width="5">
+      </a-text>
+
+      <a-entity gltf-model="#avatar" 
+                position="0 0 -3" 
+                scale="1.3 1.3 1.3"
+                animation-mixer="clip: *">
+      </a-entity>
+
+      <a-entity id="grupoBotones">
+        <a-box id="btnMecanicas" class="clickable" position="-1.8 1.5 -2.5" width="1" height="0.6" depth="0.1" color="#4F7CAC">
+          <a-text value="MECANICAS" align="center" position="0 0 0.06" width="3.5" color="white" font="roboto"></a-text>
+        </a-box>
+
+        <a-box id="btnInmersion" class="clickable" position="1.8 1.5 -2.5" width="1" height="0.6" depth="0.1" color="#C084FC">
+          <a-text value="INMERSION" align="center" position="0 0 0.06" width="3.5" color="white" font="roboto"></a-text>
+        </a-box>
+      </a-entity>
+
+      <a-box id="panelDetalle" 
+             class="clickable"
+             position="0 -5 -1.5" 
+             width="2.5" height="1.8" depth="0.1" 
+             color="#111" 
+             visible="false">
+          
+          <a-text id="textoDetalleTitle" 
+                  value="DETALLE" 
+                  align="center" 
+                  position="0 0.6 0.06" 
+                  font="roboto" 
+                  wrap-count="20" 
+                  color="#FFD700"
+                  width="2.2"></a-text>
+
+          <a-text id="textoDetalleBody" 
+                  value="..." 
+                  align="center" 
+                  position="0 -0.1 0.06" 
+                  font="roboto" 
+                  wrap-count="28" 
+                  color="#FFF"
+                  width="2.2"></a-text>
+
+          <a-text value="[ Toca para cerrar ]" 
+                  align="center" 
+                  position="0 -0.7 0.06" 
+                  font="roboto" 
+                  wrap-count="25" 
+                  color="#BBB"
+                  width="2.2"></a-text>
+      </a-box>
+
+      <a-box id="botonNivel3" class="clickable" position="0 0.5 -1.8" width="1.2" height="0.4" depth="0.1" color="#4CAF50">
+          <a-text value="SIGUIENTE" align="center" position="0 0 0.06" width="2.5" color="white" font="roboto"></a-text>
+      </a-box>
+
+      <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
+      <a-light type="directional" color="#FFF" intensity="0.5" position="-0.5 1 1"></a-light>
+      
+      <a-camera position="0 1.6 0">
+        </a-camera>
+    </a-scene>
+
+    <script>
+      const info1 = {
+        titulo: "MECANICAS DE JUEGO",
+        cuerpo: "El uso de puntos y retos en la escena aumenta la motivacion, manteniendo al estudiante enfocado."
+      };
+
+      const info2 = {
+        titulo: "INMERSION 3D",
+        cuerpo: "Los avatares crean una conexion emocional que facilita el aprendizaje significativo."
+      };
+
+      const panel = document.querySelector('#panelDetalle');
+      const titulo = document.querySelector('#textoDetalleTitle');
+      const cuerpo = document.querySelector('#textoDetalleBody');
+      const grupoBotones = document.querySelector('#grupoBotones');
+      const botonNivel3 = document.querySelector('#botonNivel3');
+
+      // Tocar boton de Mecanicas
+      document.querySelector('#btnMecanicas').addEventListener('click', function() {
+        titulo.setAttribute('value', info1.titulo);
+        cuerpo.setAttribute('value', info1.cuerpo);
+        abrirPanel();
+      });
+
+      // Tocar boton de Inmersion
+      document.querySelector('#btnInmersion').addEventListener('click', function() {
+        titulo.setAttribute('value', info2.titulo);
+        cuerpo.setAttribute('value', info2.cuerpo);
+        abrirPanel();
+      });
+
+      // Tocar en cualquier parte de la pizarra para cerrar
+      panel.addEventListener('click', function() {
+        cerrarPanel();
+      });
+
+      // Tocar boton Siguiente
+      botonNivel3.addEventListener('click', function() {
+        window.location.href = 'escena3.html';
+      });
+
+      function abrirPanel() {
+        // Hacemos visible el panel y lo subimos a la altura de los ojos (Y = 1.5)
+        panel.setAttribute('position', '0 1.5 -1.5');
+        panel.setAttribute('visible', 'true');
+
+        // Escondemos los botones de fondo para evitar conflictos tactiles
+        grupoBotones.setAttribute('visible', 'false');
+        botonNivel3.setAttribute('visible', 'false');
+
+        // Les quitamos temporalmente la interaccion
+        document.querySelector('#btnMecanicas').classList.remove('clickable');
+        document.querySelector('#btnInmersion').classList.remove('clickable');
+        botonNivel3.classList.remove('clickable');
+      }
+
+      function cerrarPanel() {
+        // Ocultamos el panel y lo mandamos al subsuelo (Y = -5) para liberar la pantalla tactil
+        panel.setAttribute('visible', 'false');
+        panel.setAttribute('position', '0 -5 -1.5');
+
+        // Mostramos de nuevo los botones principales
+        grupoBotones.setAttribute('visible', 'true');
+        botonNivel3.setAttribute('visible', 'true');
+
+        // Devolvemos el estado clickeable
+        document.querySelector('#btnMecanicas').classList.add('clickable');
+        document.querySelector('#btnInmersion').classList.add('clickable');
+        botonNivel3.classList.add('clickable');
+      }
+    </script>
+  </body>
+</html>

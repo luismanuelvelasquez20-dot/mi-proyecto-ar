@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Muro de Recursos - Realidad Aumentada</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+    </style>
+  </head>
+  <body>
+    <a-scene cursor="rayOrigin: mouse; interval: 10" raycaster="objects: .clickable" webxr="optionalFeatures: hit-test, local-floor">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+        <img id="thumb1" src="https://img.youtube.com/vi/PLpDCK3Zy7Q/mqdefault.jpg">
+        <img id="thumb2" src="https://img.youtube.com/vi/svHX_6ULcO0/mqdefault.jpg">
+      </a-assets>
+
+      <a-sky color="#05050A"></a-sky>
+
+      <a-text value="GALERIA DE RECURSOS RA" position="0 3.5 -3" align="center" width="6" color="#FFD700" font="roboto"></a-text>
+
+      <a-entity position="0 1.8 -3.5">
+        <a-box width="6.5" height="3" depth="0.2" color="#1A1A24"></a-box>
+        
+        <a-entity position="-1.6 0 0.15">
+          <a-image id="imgVideo1" class="clickable" src="#thumb1" width="2.4" height="1.4" position="0 0.1 0.01"></a-image>
+          <a-box id="boxVideo1" class="clickable" width="2.6" height="1.8" depth="0.1" color="#3B82F6"></a-box>
+          <a-text value="Diferencias RA vs RV" align="center" position="0 -0.7 0.07" width="2.5" color="white"></a-text>
+        </a-entity>
+
+        <a-entity position="1.6 0 0.15">
+          <a-image id="imgVideo2" class="clickable" src="#thumb2" width="2.4" height="1.4" position="0 0.1 0.01"></a-image>
+          <a-box id="boxVideo2" class="clickable" width="2.6" height="1.8" depth="0.1" color="#10B981"></a-box>
+          <a-text value="RA en la Educacion" align="center" position="0 -0.7 0.07" width="2.5" color="white"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <a-entity position="0 0.4 -2.5">
+        <a-box id="btnVolver" class="clickable" width="2" height="0.4" depth="0.1" color="#EF4444"></a-box>
+        <a-text value="VOLVER AL INICIO" align="center" position="0 0 0.06" width="3.5" color="white"></a-text>
+      </a-entity>
+
+      <a-entity gltf-model="#avatar" 
+                position="-3.8 0 -3" 
+                rotation="0 150 0" 
+                scale="1.1 1.1 1.1" 
+                animation-mixer>
+      </a-entity>
+
+      <a-light type="ambient" intensity="0.8"></a-light>
+      <a-light type="directional" intensity="0.5" position="-1 3 1"></a-light>
+      
+      <a-camera look-controls="magicWindowTrackingEnabled: true; touchEnabled: true"></a-camera>
+    </a-scene>
+
+    <script>
+      // Función única para redirigir de forma segura
+      function irAVideo(url) {
+        window.location.href = url;
+      }
+
+      // ASIGNAMOS LOS LISTENERS DIRECTAMENTE A LA IMAGEN Y A LA CAJA DE CADA PANEL
+      
+      // Eventos para Video 1 (Diferencias RA vs RV)
+      document.querySelector('#imgVideo1').addEventListener('click', function() {
+        irAVideo('https://www.youtube.com/watch?v=PLpDCK3Zy7Q');
+      });
+      document.querySelector('#boxVideo1').addEventListener('click', function() {
+        irAVideo('https://www.youtube.com/watch?v=PLpDCK3Zy7Q');
+      });
+
+      // Eventos para Video 2 (RA en la Educación)
+      document.querySelector('#imgVideo2').addEventListener('click', function() {
+        irAVideo('https://www.youtube.com/watch?v=svHX_6ULcO0');
+      });
+      document.querySelector('#boxVideo2').addEventListener('click', function() {
+        irAVideo('https://www.youtube.com/watch?v=svHX_6ULcO0');
+      });
+
+      // Evento para el botón Volver
+      document.querySelector('#btnVolver').addEventListener('click', function() {
+        window.location.href = 'index.html';
+      });
+    </script>
+  </body>
+</html>

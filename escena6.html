@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Nivel 6 - El Buscador de Evidencias</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  </head>
+  <body>
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+      
+      <a-assets>
+        <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
+      </a-assets>
+
+      <a-sky id="fondo" color="#02050a"></a-sky>
+
+      <a-light type="ambient" color="#FFF" intensity="0.6"></a-light>
+      <a-light type="directional" color="#00FFFF" intensity="0.7" position="1 3 1"></a-light>
+
+      <a-text id="titulo" 
+              value="NIVEL 6: BUSCADOR DE EVIDENCIAS" 
+              font="roboto" 
+              position="0 3.2 -2.5" 
+              align="center" 
+              color="#FFD700" 
+              width="4.5">
+      </a-text>
+
+      <a-text id="indicaciones" 
+              value="¡Encuentra las 3 esferas de luz ocultas en el espacio!" 
+              font="roboto" 
+              position="0 2.5 -2.2" 
+              align="center" 
+              color="#FFF" 
+              width="3.8">
+      </a-text>
+
+      <a-text id="contador" 
+              value="Evidencias: 0 / 3" 
+              font="roboto" 
+              position="0 2.1 -2.2" 
+              align="center" 
+              color="#00FFCC" 
+              width="3">
+      </a-text>
+
+      <a-entity id="avatarBuscador"
+                gltf-model="#avatar" 
+                position="0 0 -2.5" 
+                scale="1.2 1.2 1.2"
+                animation-mixer="clip: *">
+      </a-entity>
+
+      <a-sphere id="evidencia1" 
+                position="-1.5 1.8 -2" 
+                radius="0.18" 
+                color="#00FFFF" 
+                onclick="recolectarEvidencia(1, '¡Evidencia 1: Mayor Retención Visual!')"
+                animation="property: position; to: -1.5 2.0 -2; dir: alternate; dur: 1200; loop: true; easing: easeInOutSine">
+      </a-sphere>
+
+      <a-sphere id="evidencia2" 
+                position="1.5 1.0 -1.8" 
+                radius="0.18" 
+                color="#FF00FF" 
+                onclick="recolectarEvidencia(2, '¡Evidencia 2: Aprendizaje Activo y Práctico!')"
+                animation="property: position; to: 1.5 0.8 -1.8; dir: alternate; dur: 1500; loop: true; easing: easeInOutSine">
+      </a-sphere>
+
+      <a-sphere id="evidencia3" 
+                position="0 2.2 -3" 
+                radius="0.18" 
+                color="#FFD700" 
+                onclick="recolectarEvidencia(3, '¡Evidencia 3: Motivación e Interactividad!')"
+                animation="property: position; to: 0 2.0 -3; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine">
+      </a-sphere>
+
+      <a-camera position="0 1.6 0">
+        <a-cursor color="yellow" visible="false"></a-cursor>
+      </a-camera>
+    </a-scene>
+
+    <script>
+      let encontradas = 0;
+      const totalEvidencias = 3;
+      const registradas = { 1: false, 2: false, 3: false };
+
+      function recolectarEvidencia(id, mensaje) {
+        if (registradas[id]) return; // Si ya se tocó, no hace nada
+
+        registradas[id] = true;
+        encontradas++;
+
+        // Desaparecer la esfera con estilo (achicándola)
+        const esfera = document.querySelector('#evidencia' + id);
+        esfera.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 400; easing: easeInQuad');
+        setTimeout(() => {
+          esfera.setAttribute('visible', 'false');
+        }, 400);
+
+        // Mostrar el beneficio descubierto
+        const textoIndicaciones = document.querySelector('#indicaciones');
+        textoIndicaciones.setAttribute('value', mensaje);
+        textoIndicaciones.setAttribute('color', '#00FFCC');
+
+        // Actualizar contador en la UI
+        document.querySelector('#contador').setAttribute('value', `Evidencias: ${encontradas} / ${totalEvidencias}`);
+
+        // Restaurar texto base después de un momento
+        if (encontradas < totalEvidencias) {
+          setTimeout(() => {
+            textoIndicaciones.setAttribute('value', '¡Sigue buscando las demás esferas!');
+            textoIndicaciones.setAttribute('color', '#FFF');
+          }, 2500);
+        } else {
+          // Si encontró las 3
+          completarNivel();
+        }
+      }
+
+      function completarNivel() {
+        const textoIndicaciones = document.querySelector('#indicaciones');
+        textoIndicaciones.setAttribute('value', "¡EXCELENTE TRABAJO! Evidencias recopiladas.");
+        textoIndicaciones.setAttribute('color', '#FFD700');
+
+        // El avatar hace una pequeña animación de victoria escalando un poco
+        document.querySelector('#avatarBuscador').setAttribute('animation', 'property: scale; to: 1.4 1.4 1.4; dur: 500; dir: alternate; loop: 2');
+
+        setTimeout(() => {
+          alert("¡Nivel 6 Completado con éxito! Preparando el Nivel 7: El Quiz de Reflejos.");
+          window.location.href = "escena7.html"; // Redirigirá al Nivel 7
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

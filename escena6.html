@@ -3,11 +3,52 @@
   <head>
     <meta charset="utf-8">
     <title>Nivel 6 - El Buscador de Evidencias</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        touch-action: none;
+      }
+    </style>
+
+    <script>
+      // 1. SCRIPT ANTI-BLOQUEO: Fuerza detección móvil
+      window.addEventListener('DOMContentLoaded', () => {
+        if (AFRAME.utils && AFRAME.utils.device) {
+          AFRAME.utils.device.isMobile = function() { return true; };
+          AFRAME.utils.device.isTablet = function() { return false; };
+        }
+      });
+
+      // 2. FORZAR PERMISO DE GIROSCOPIO AL PRIMER TOQUE
+      window.addEventListener('click', function() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+              if (permissionState === 'granted') {
+                var cameraEl = document.querySelector('a-camera');
+                if (cameraEl) {
+                  cameraEl.components['look-controls'].play();
+                }
+              }
+            })
+            .catch(console.error);
+        }
+      }, { once: true });
+    </script>
   </head>
   <body>
-    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" 
+             cursor="rayOrigin: mouse; interval: 10"
+             raycaster="objects: .clickable, a-sphere"
+             device-orientation-permission-ui="enabled: false"
+             vr-mode-ui="enabled: false">
       
       <a-assets>
         <a-asset-item id="avatar" src="mi_avatar.glb"></a-asset-item>
@@ -28,7 +69,7 @@
       </a-text>
 
       <a-text id="indicaciones" 
-              value="¡Encuentra las 3 esferas de luz ocultas en el espacio!" 
+              value="iexcl;Encuentra las 3 esferas de luz ocultas en el espacio!" 
               font="roboto" 
               position="0 2.5 -2.2" 
               align="center" 
@@ -52,31 +93,31 @@
                 animation-mixer="clip: *">
       </a-entity>
 
-      <a-sphere id="evidencia1" 
+      <a-sphere id="evidencia1" class="clickable"
                 position="-1.5 1.8 -2" 
                 radius="0.18" 
                 color="#00FFFF" 
-                onclick="recolectarEvidencia(1, '¡Evidencia 1: Mayor Retención Visual!')"
+                onclick="recolectarEvidencia(1, 'iexcl;Evidencia 1: Mayor Retencion Visual!')"
                 animation="property: position; to: -1.5 2.0 -2; dir: alternate; dur: 1200; loop: true; easing: easeInOutSine">
       </a-sphere>
 
-      <a-sphere id="evidencia2" 
+      <a-sphere id="evidencia2" class="clickable"
                 position="1.5 1.0 -1.8" 
                 radius="0.18" 
                 color="#FF00FF" 
-                onclick="recolectarEvidencia(2, '¡Evidencia 2: Aprendizaje Activo y Práctico!')"
+                onclick="recolectarEvidencia(2, 'iexcl;Evidencia 2: Aprendizaje Activo y Practico!')"
                 animation="property: position; to: 1.5 0.8 -1.8; dir: alternate; dur: 1500; loop: true; easing: easeInOutSine">
       </a-sphere>
 
-      <a-sphere id="evidencia3" 
+      <a-sphere id="evidencia3" class="clickable"
                 position="0 2.2 -3" 
                 radius="0.18" 
                 color="#FFD700" 
-                onclick="recolectarEvidencia(3, '¡Evidencia 3: Motivación e Interactividad!')"
+                onclick="recolectarEvidencia(3, 'iexcl;Evidencia 3: Motivacion e Interactividad!')"
                 animation="property: position; to: 0 2.0 -3; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine">
       </a-sphere>
 
-      <a-camera position="0 1.6 0">
+      <a-camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: true; touchEnabled: true">
         <a-cursor color="yellow" visible="false"></a-cursor>
       </a-camera>
     </a-scene>
@@ -87,49 +128,43 @@
       const registradas = { 1: false, 2: false, 3: false };
 
       function recolectarEvidencia(id, mensaje) {
-        if (registradas[id]) return; // Si ya se tocó, no hace nada
+        if (registradas[id]) return;
 
         registradas[id] = true;
         encontradas++;
 
-        // Desaparecer la esfera con estilo (achicándola)
         const esfera = document.querySelector('#evidencia' + id);
         esfera.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 400; easing: easeInQuad');
         setTimeout(() => {
           esfera.setAttribute('visible', 'false');
         }, 400);
 
-        // Mostrar el beneficio descubierto
         const textoIndicaciones = document.querySelector('#indicaciones');
         textoIndicaciones.setAttribute('value', mensaje);
         textoIndicaciones.setAttribute('color', '#00FFCC');
 
-        // Actualizar contador en la UI
         document.querySelector('#contador').setAttribute('value', `Evidencias: ${encontradas} / ${totalEvidencias}`);
 
-        // Restaurar texto base después de un momento
         if (encontradas < totalEvidencias) {
           setTimeout(() => {
-            textoIndicaciones.setAttribute('value', '¡Sigue buscando las demás esferas!');
+            textoIndicaciones.setAttribute('value', 'iexcl;Sigue buscando las demas esferas!');
             textoIndicaciones.setAttribute('color', '#FFF');
           }, 2500);
         } else {
-          // Si encontró las 3
           completarNivel();
         }
       }
 
       function completarNivel() {
         const textoIndicaciones = document.querySelector('#indicaciones');
-        textoIndicaciones.setAttribute('value', "¡EXCELENTE TRABAJO! Evidencias recopiladas.");
+        textoIndicaciones.setAttribute('value', "iexcl;EXCELENTE TRABAJO! Evidencias recopiladas.");
         textoIndicaciones.setAttribute('color', '#FFD700');
 
-        // El avatar hace una pequeña animación de victoria escalando un poco
         document.querySelector('#avatarBuscador').setAttribute('animation', 'property: scale; to: 1.4 1.4 1.4; dur: 500; dir: alternate; loop: 2');
 
         setTimeout(() => {
-          alert("¡Nivel 6 Completado con éxito! Preparando el Nivel 7: El Quiz de Reflejos.");
-          window.location.href = "escena7.html"; // Redirigirá al Nivel 7
+          alert("iexcl;Nivel 6 Completado con exito! Preparando el Nivel 7: El Quiz de Reflejos.");
+          window.location.href = "escena7.html";
         }, 3000);
       }
     </script>

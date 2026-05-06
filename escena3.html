@@ -54,7 +54,11 @@
     </script>
   </head>
   <body>
-    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" cursor="rayOrigin: mouse">
+    <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local" 
+             cursor="rayOrigin: mouse; interval: 10"
+             device-orientation-permission-ui="enabled: false"
+             vr-mode-ui="enabled: false">
+             
       <a-assets>
         <a-asset-item id="mi_avatar" src="mi_avatar.glb"></a-asset-item>
       </a-assets>
@@ -85,8 +89,9 @@
       <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
       <a-light type="directional" color="#FFF" intensity="0.5" position="-0.5 1 1"></a-light>
 
-      <a-camera position="0 1.6 0">
-        </a-camera>
+      <a-camera position="0 1.6 0" 
+                look-controls="magicWindowTrackingEnabled: true; touchEnabled: true">
+      </a-camera>
     </a-scene>
   </body>
 </html>

@@ -3,12 +3,69 @@
 <head>
   <meta charset="utf-8">
   <title>Nivel 1 - El Oasis Regenerado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
   <script src="progreso.js"></script>
 
   <style>
-    /* HUD de exploración Gamer */
+    /* Estilos globales para evitar scroll e interferencias en celulares */
+    html, body {
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* PANTALLA DE BLOQUEO: GIRA EL CELULAR */
+    #orientation-blocker {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #020208;
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #orientation-blocker .icon {
+      font-size: 4rem;
+      animation: rotatePhone 2s infinite ease-in-out;
+      margin-bottom: 20px;
+    }
+    #orientation-blocker h2 {
+      color: #00f0ff;
+      text-shadow: 0 0 10px #00f0ff;
+      margin: 10px 0;
+      font-size: 1.5rem;
+    }
+    @keyframes rotatePhone {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(-90deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Solo se activa el bloqueador si la pantalla está en vertical (Portrait) */
+    @media (orientation: portrait) {
+      #orientation-blocker {
+        display: flex;
+      }
+    }
+
+    /* HUD Superior */
     .hud-overlay {
       position: absolute;
       top: 15px;
@@ -18,7 +75,10 @@
       color: #00f0ff;
       text-shadow: 0 0 5px #00f0ff;
       pointer-events: none;
+      font-size: 0.85rem;
     }
+
+    /* Mensajes guía en la zona inferior central */
     #gameMsg {
       position: absolute;
       bottom: 20px;
@@ -30,41 +90,54 @@
       padding: 10px 20px;
       color: #fff;
       font-family: sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-align: center;
       z-index: 10;
       box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-      max-width: 80%;
+      max-width: 60%;
+      pointer-events: none;
     }
 
-    /* Interfaz de Pista - Estilo Papel/Pergamino */
+    /* ZONA TÁCTIL DEL JOYSTICK (Esquina inferior izquierda) */
+    #joystick-zone {
+      position: absolute;
+      bottom: 25px;
+      left: 25px;
+      width: 120px;
+      height: 120px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 240, 255, 0.2);
+    }
+
+    /* Interfaz de Pista en Papel / Pergamino */
     .parchment-ui {
       display: none;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #f3e5ab; /* Color papel viejo */
-      background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png'); /* Textura sutil */
-      border: 10px solid #8b4513; /* Borde madera/cuero */
-      border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50"><path d="M0,0H50V50H0Z" fill="%238b4513"/><path d="M5,5H45V45H5Z" fill="%23f3e5ab"/></svg>') 10 stretch;
+      background-color: #f3e5ab;
+      background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png');
+      border: 8px solid #8b4513;
       border-radius: 5px;
-      padding: 30px;
-      z-index: 30;
+      padding: 20px;
+      z-index: 500;
       width: 80%;
-      max-width: 500px;
-      box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
-      font-family: 'Papyrus', 'Palatino Linotype', serif; /* Fuente tipo manuscrito */
+      max-width: 450px;
+      box-shadow: 10px 10px 20px rgba(0,0,0,0.6);
+      font-family: 'Georgia', serif;
       color: #4a2c00;
       text-align: center;
     }
     .parchment-text {
-      font-size: 1.2rem;
-      line-height: 1.6;
-      margin-bottom: 20px;
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 15px;
     }
     .parchment-hint {
-      font-size: 1rem;
+      font-size: 0.85rem;
       color: #8b4513;
       font-style: italic;
     }
@@ -72,14 +145,14 @@
       background: #8b4513;
       color: #f3e5ab;
       border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
+      padding: 8px 16px;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
-    /* Teclado del Candado */
+    /* Teclado del Candado del baúl */
     .padlock-ui {
       display: none;
       position: absolute;
@@ -90,32 +163,33 @@
       border: 3px solid #bd00ff;
       box-shadow: 0 0 30px rgba(189, 0, 255, 0.5);
       border-radius: 12px;
-      padding: 20px;
-      z-index: 20;
+      padding: 15px;
+      z-index: 500;
       text-align: center;
       font-family: monospace;
+      width: 260px;
     }
     .padlock-screen {
       background: #000;
       color: #bd00ff;
-      font-size: 1.8rem;
-      padding: 8px;
+      font-size: 1.6rem;
+      padding: 6px;
       border-radius: 4px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       letter-spacing: 5px;
       border: 1px solid rgba(189, 0, 255, 0.3);
     }
     .padlock-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
     .pad-btn {
       background: rgba(189, 0, 255, 0.1);
       border: 1px solid #bd00ff;
       color: #fff;
-      font-size: 1.2rem;
-      padding: 12px;
+      font-size: 1.1rem;
+      padding: 10px;
       border-radius: 6px;
       cursor: pointer;
     }
@@ -124,25 +198,33 @@
 </head>
 <body>
 
+  <div id="orientation-blocker">
+    <div class="icon">🔄</div>
+    <h2>PANTALLA BLOQUEADA</h2>
+    <p>Por favor, gira tu dispositivo de lado (modo horizontal) para disfrutar la aventura.</p>
+  </div>
+
   <div class="hud-overlay">
-    <div>// OBJETIVO: REGENERAR OASIS Y EXTRAER RELIQUIA</div>
+    <div>// OBJETIVO: REGENERAR OASIS Y OBTENER LA MEDALLA</div>
     <div id="relicStatus" style="color: #ff0055;">RELIQUIA: BLOQUEADA</div>
   </div>
 
-  <div class="game-prompt" id="gameMsg">Pulsa el núcleo brillante para iniciar la REGENERACIÓN.</div>
+  <div class="game-prompt" id="gameMsg">Presiona el núcleo azul brillante del centro para regenerar el ecosistema.</div>
+
+  <div id="joystick-zone"></div>
 
   <div class="parchment-ui" id="parchmentUI">
     <div class="parchment-text">
       "La Realidad Aumentada no es solo tecnología, es un puente hacia un mundo donde la imaginación y la realidad se funden para expandir los límites de lo que es posible."
     </div>
     <div class="parchment-hint">
-      Busca en la parte trasera del tronco plateado... el código secreto te espera. El baúl está cerca del sauce.
+      El cofre ancestral reposa cerca del arbusto... El código sagrado de 3 dígitos está tallado en la placa plateada detrás del árbol izquierdo.
     </div>
-    <button class="close-parchment" onclick="cerrarParchment()">Cerrar Mapa</button>
+    <button class="close-parchment" onclick="cerrarParchment()">Guardar Carta</button>
   </div>
 
   <div class="padlock-ui" id="lockUI">
-    <div style="color: #fff; margin-bottom: 10px; font-family: 'Orbitron';">INGRESAR CÓDIGO</div>
+    <div style="color: #fff; margin-bottom: 10px; font-family: sans-serif; font-size: 0.9rem;">INGRESAR COMBINACIÓN</div>
     <div class="padlock-screen" id="lockDisplay">---</div>
     <div class="padlock-grid">
       <button class="pad-btn" onclick="pressKey('7')">7</button>
@@ -160,9 +242,7 @@
     </div>
   </div>
 
-  <a-scene webxr="optionalFeatures: hit-test, local-floor; referenceSpaceType: local"
-           cursor="rayOrigin: mouse; interval: 10"
-           vr-mode-ui="enabled: false">
+  <a-scene cursor="rayOrigin: mouse; interval: 10" vr-mode-ui="enabled: false">
     
     <a-sky id="cielo" color="#87CEEB"></a-sky> <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
     <a-light id="sol" type="directional" color="#FFF" intensity="0.5" position="-1 4 -1"></a-light>
@@ -173,45 +253,45 @@
                     animation__bob="property: position; to: 0 1.6 -3; dir: alternate; dur: 1500; loop: true; easing: easeInOutSine">
       </a-octahedron>
       <a-ring color="#bd00ff" radius-inner="0.4" radius-outer="0.45" rotation="90 0 0"></a-ring>
-      <a-text value="ACTIVAR NUCLEO" align="center" position="0 -0.5 0" scale="0.8 0.8 0.8" color="#bd00ff" font="monoid"></a-text>
+      <a-text value="ACTIVAR" align="center" position="0 -0.5 0" scale="0.8 0.8 0.8" color="#bd00ff" font="monoid"></a-text>
     </a-entity>
 
-    <a-plane id="sueloArena" rotation="-90 0 0" width="30" height="30" color="#f2d1a9" static-body>
+    <a-plane id="sueloArena" rotation="-90 0 0" width="40" height="40" color="#f2d1a9">
       <a-cone color="#2e6f40" radius-bottom="0.03" radius-top="0" height="0.15" position="1 0.08 2"></a-cone>
       <a-cone color="#1e4620" radius-bottom="0.02" radius-top="0" height="0.1" position="-1.5 0.05 1.5"></a-cone>
       <a-cone color="#2e6f40" radius-bottom="0.04" radius-top="0" height="0.18" position="0.5 0.1 -1"></a-cone>
       <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.12" position="-2.2 0.06 -1.8"></a-cone>
+      <a-cone color="#2e6f40" radius-bottom="0.03" radius-top="0" height="0.14" position="3 0.07 -3"></a-cone>
     </a-plane>
 
     <a-entity id="bosqueRegenerado" visible="false" position="0 0 0">
       
-      <a-entity id="arbolSecreto" position="-2.8 0 -4.5">
+      <a-entity id="arbolSecreto" position="-2.5 0 -4.5">
         <a-cylinder color="#5c3a21" radius="0.22" height="3.2" position="0 1.6 0"></a-cylinder>
-        <a-sphere color="#1e4620" radius="1.4" position="0 3.2 0" opacity="0.95"></a-sphere>
-        <a-sphere color="#2e6f40" radius="1.0" position="0.6 3.6 0.6" opacity="0.9"></a-sphere>
+        <a-sphere color="#1e4620" radius="1.3" position="0 3.2 0" opacity="0.95"></a-sphere>
         
-        <a-plane color="#C0C0C0" width="0.4" height="0.2" rotation="0 180 0" position="0 1.3 0.23" material="metalness: 0.8; roughness: 0.2">
-          <a-text value="852" color="#000" align="center" position="0 0 0.01" width="2.5" font="monoid" font-weight="bold"></a-text>
+        <a-plane color="#C0C0C0" width="0.38" height="0.18" rotation="0 180 0" position="0 1.4 0.23" material="metalness: 0.9; roughness: 0.1">
+          <a-text value="852" color="#000" align="center" position="0 0 0.01" width="2.4" font="monoid" font-weight="bold"></a-text>
         </a-plane>
       </a-entity>
 
-      <a-entity position="3.2 0 -5.5" id="arbolPista" onclick="mostrarPistaPapel()">
+      <a-entity position="2.8 0 -5" id="arbolPista" onclick="mostrarPistaPapel()">
         <a-cylinder color="#4a2c00" radius="0.18" height="3" position="0 1.5 0"></a-cylinder>
-        <a-sphere color="#2a5d2c" radius="1.2" position="0 3 0"></a-sphere>
-        <a-cone color="#bd00ff" radius-bottom="0.08" radius-top="0" height="0.2" position="0 1.6 0.25" rotation="180 0 0"
-                animation="property: position; to: 0 1.5 0.25; dir: alternate; dur: 800; loop: true"></a-cone>
+        <a-sphere color="#2a5d2c" radius="1.1" position="0 3 0"></a-sphere>
+        <a-cone color="#bd00ff" radius-bottom="0.08" radius-top="0" height="0.2" position="0 1.5 0.25" rotation="180 0 0"
+                animation="property: position; to: 0 1.4 0.25; dir: alternate; dur: 800; loop: true"></a-cone>
       </a-entity>
 
-      <a-entity id="baulContenedor" position="2.5 0 -3.5" rotation="0 -40 0">
+      <a-entity id="baulContenedor" position="2.2 0 -3.2" rotation="0 -40 0">
         <a-box id="baulBase" color="#5c3a21" width="0.7" height="0.4" depth="0.5" position="0 0.2 0" onclick="abrirInterfazCofre()"></a-box>
-        <a-entity id="baulTapaPivote" position="0 0.4  -0.25">
+        <a-entity id="baulTapaPivote" position="0 0.4 -0.25">
              <a-box id="baulTapa" color="#3e2511" width="0.72" height="0.15" depth="0.52" position="0 0.075 0.25"
-                    animation="property: rotation; to: -100 0 0; dur: 1200; startEvents: cofreAbierto; easing: easeOutQuad"></a-box>
+                    animation="property: rotation; to: -105 0 0; dur: 1200; startEvents: cofreAbierto; easing: easeOutQuad"></a-box>
         </a-entity>
-        <a-box id="candado" color="#bd00ff" width="0.15" height="0.15" depth="0.08" position="0 0.35 0.26"></a-box>
+        <a-box id="candado" color="#bd00ff" width="0.14" height="0.14" depth="0.08" position="0 0.35 0.26"></a-box>
       </a-entity>
 
-      <a-entity id="reliquiaN1" position="2.5 -1 -3.5" scale="0 0 0">
+      <a-entity id="reliquiaN1" position="2.2 -1 -3.2" scale="0 0 0">
         <a-torus-knot color="#ffd700" radius="0.15" radius-tubular="0.04" material="metalness: 0.9; roughness: 0.1"
                       animation="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear">
         </a-torus-knot>
@@ -220,9 +300,12 @@
 
     </a-entity>
 
-    <a-camera position="0 1.6 0" look-controls="magicWindowTrackingEnabled: true; touchEnabled: true">
-      <a-cursor color="#00f0ff" scale="0.8 0.8 0.8" opacity="0.7"></a-cursor>
-    </a-camera>
+    <a-entity id="rig" position="0 0 0">
+      <a-camera id="camera" look-controls="pointerLockEnabled: false; touchEnabled: true" wasd-controls-enabled="false" position="0 1.6 0">
+        <a-cursor color="#00f0ff" scale="0.8 0.8 0.8" opacity="0.7"></a-cursor>
+      </a-camera>
+    </a-entity>
+
   </a-scene>
 
   <script>
@@ -230,6 +313,56 @@
     const codigoCorrecto = "852";
     let bosqueActivo = false;
 
+    // Configuración de movimiento del Rig (Cámara + Posición)
+    const rig = document.getElementById('rig');
+    const camera = document.getElementById('camera');
+    let moveDirection = { x: 0, z: 0 };
+    const movementSpeed = 0.08;
+
+    // 1. Inicialización del Joystick Virtual táctil
+    const manager = nipplejs.create({
+      zone: document.getElementById('joystick-zone'),
+      mode: 'static',
+      position: { left: '60px', top: '60px' },
+      color: '#00f0ff',
+      size: 90
+    });
+
+    manager.on('move', function (evt, data) {
+      if (!data.vector) return;
+      
+      // Obtener el ángulo de la cámara para que el personaje camine hacia donde está mirando
+      const rotation = camera.getAttribute('rotation');
+      const angle = (rotation.y * Math.PI) / 180;
+
+      // Calcular el vector de movimiento basado en el ángulo del joystick
+      const forward = data.vector.y;
+      const side = data.vector.x;
+
+      moveDirection.x = (side * Math.cos(angle) - forward * Math.sin(angle)) * movementSpeed;
+      moveDirection.z = (-side * Math.sin(angle) - forward * Math.cos(angle)) * movementSpeed;
+    });
+
+    manager.on('end', function () {
+      moveDirection.x = 0;
+      moveDirection.z = 0;
+    });
+
+    // Bucle de física manual de A-Frame para mover la cámara suavemente
+    function tick() {
+      if (moveDirection.x !== 0 || moveDirection.z !== 0) {
+        const currentPos = rig.getAttribute('position');
+        rig.setAttribute('position', {
+          x: currentPos.x + moveDirection.x,
+          y: currentPos.y,
+          z: currentPos.z + moveDirection.z
+        });
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // 2. Lógicas del juego (Regeneración, pistas, candado)
     function iniciarRegeneracion() {
       if (bosqueActivo) return;
       bosqueActivo = true;
@@ -240,7 +373,7 @@
       bosque.setAttribute('visible', 'true');
       bosque.setAttribute('animation', 'property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 2500; easing: easeOutElastic');
 
-      document.getElementById("gameMsg").innerText = "¡Mundo regenerado! Explora e interactúa con el árbol brillante para obtener la pista.";
+      document.getElementById("gameMsg").innerText = "¡Oasis regenerado! Explora usando el joystick virtual de la izquierda.";
     }
 
     function mostrarPistaPapel() {
@@ -250,7 +383,7 @@
 
     function cerrarParchment() {
       document.getElementById("parchmentUI").style.display = "none";
-      document.getElementById("gameMsg").innerText = "Busca el código de 3 dígitos detrás del árbol plateado. El baúl está cerca del sauce.";
+      document.getElementById("gameMsg").innerText = "Encuentra el código de 3 dígitos detrás del árbol plateado e ingrésalo en el baúl.";
     }
 
     function abrirInterfazCofre() {
@@ -273,27 +406,25 @@
     function checkCode() {
       if (actualInput === codigoCorrecto) {
         document.getElementById("lockUI").style.display = "none";
-        document.getElementById("gameMsg").innerText = "¡CÓDIGO CORRECTO! Abriendo baúl...";
+        document.getElementById("gameMsg").innerText = "¡CÓDIGO EXCELENTE! Abriendo baúl ancestral...";
 
-        // Lanzar animación de la tapa
         document.querySelector('#baulTapa').emit('cofreAbierto');
         document.querySelector('#candado').setAttribute('visible', 'false');
 
-        // Aparecer reliquia
         const reliquia = document.querySelector('#reliquiaN1');
         reliquia.setAttribute('scale', '1 1 1');
-        reliquia.setAttribute('animation', 'property: position; to: 2.5 1.2 -3.5; dur: 2000; easing: easeOutQuad');
+        reliquia.setAttribute('animation', 'property: position; to: 2.2 1.2 -3.2; dur: 2000; easing: easeOutQuad');
 
-        document.getElementById("relicStatus").innerText = "RELIQUIA: SINCRO CORRETA";
+        document.getElementById("relicStatus").innerText = "RELIQUIA: CONECTADA";
         document.getElementById("relicStatus").style.color = "#00ffcc";
 
         guardarNivelCompletado('nivel3');
-        registrarDescubrimiento("Evidencia 1: La RA inmersiva estimula la exploración y resolución creativa de problemas técnicos.");
+        registrarDescubrimiento("Evidencia 1: La RA inmersiva facilita el aprendizaje interactivo simulando entornos reales.");
 
         setTimeout(() => {
-          alert("¡Felicidades! Reliquia recolectada. Volviendo al Portal...");
+          alert("¡Nivel Completado con éxito! Volviendo al Portal de Aventura...");
           window.location.href = "menu.html";
-        }, 4500);
+        }, 4000);
 
       } else {
         document.getElementById("lockDisplay").innerText = "ERR";

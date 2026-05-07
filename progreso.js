@@ -10,7 +10,7 @@ function inicializarBaseDatos() {
     if (!localStorage.getItem("usuarios_registrados")) {
         const usuariosIniciales = {
             "caperuza": { contrasena: "0000" },
-            "admin": { contrasena: "usuario" }
+            "usuario": { contrasena: "usuario" }
         };
         localStorage.setItem("usuarios_registrados", JSON.stringify(usuariosIniciales));
         console.log("[Base de Datos] Inicializada con usuarios por defecto.");

@@ -20,6 +20,7 @@
       height: 100%;
       user-select: none;
       -webkit-user-select: none;
+      background-color: #020208;
     }
 
     /* PANTALLA DE BLOQUEO: GIRA EL CELULAR */
@@ -36,7 +37,7 @@
       align-items: center;
       flex-direction: column;
       color: #fff;
-      font-family: 'Courier New', monospace;
+      font-family: monospace;
       text-align: center;
       padding: 20px;
       box-sizing: border-box;
@@ -98,29 +99,30 @@
       pointer-events: none;
     }
 
-    /* ZONA TÁCTIL DEL JOYSTICK (Esquina inferior izquierda) */
+    /* CONTENEDOR DEL JOYSTICK CORREGIDO (Garantiza visibilidad y respuesta táctil) */
     #joystick-zone {
       position: absolute;
-      bottom: 25px;
-      left: 25px;
+      bottom: 20px;
+      left: 20px;
       width: 120px;
       height: 120px;
-      z-index: 100;
-      background: rgba(255, 255, 255, 0.03);
+      z-index: 9999; /* Por encima de la escena 3D de A-Frame */
+      background: rgba(0, 240, 255, 0.05);
+      border: 2px dashed rgba(0, 240, 255, 0.3);
       border-radius: 50%;
-      border: 1px dashed rgba(0, 240, 255, 0.2);
+      touch-action: none; /* Evita que el navegador arrastre la página */
     }
 
-    /* Interfaz de Pista en Papel / Pergamino */
+    /* Interfaz de Carta/Pergamino de pista */
     .parchment-ui {
       display: none;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #f3e5ab;
+      background-color: #e6cf9c;
       background-image: url('https://www.transparenttextures.com/patterns/dark-dotted-2.png');
-      border: 8px solid #8b4513;
+      border: 8px solid #5c3a21;
       border-radius: 5px;
       padding: 20px;
       z-index: 500;
@@ -128,7 +130,7 @@
       max-width: 450px;
       box-shadow: 10px 10px 20px rgba(0,0,0,0.6);
       font-family: 'Georgia', serif;
-      color: #4a2c00;
+      color: #3a1c00;
       text-align: center;
     }
     .parchment-text {
@@ -138,12 +140,12 @@
     }
     .parchment-hint {
       font-size: 0.85rem;
-      color: #8b4513;
+      color: #5c3a21;
       font-style: italic;
     }
     .close-parchment {
-      background: #8b4513;
-      color: #f3e5ab;
+      background: #5c3a21;
+      color: #e6cf9c;
       border: none;
       padding: 8px 16px;
       border-radius: 4px;
@@ -152,7 +154,7 @@
       margin-top: 10px;
     }
 
-    /* Teclado del Candado del baúl */
+    /* Teclado del Candado */
     .padlock-ui {
       display: none;
       position: absolute;
@@ -218,7 +220,7 @@
       "La Realidad Aumentada no es solo tecnología, es un puente hacia un mundo donde la imaginación y la realidad se funden para expandir los límites de lo que es posible."
     </div>
     <div class="parchment-hint">
-      El cofre ancestral reposa cerca del arbusto... El código sagrado de 3 dígitos está tallado en la placa plateada detrás del árbol izquierdo.
+      El cofre ancestral reposa cerca del arbusto... El código sagrado de 3 dígitos está grabado en la placa metálica que está justo detrás de las hojas del árbol izquierdo.
     </div>
     <button class="close-parchment" onclick="cerrarParchment()">Guardar Carta</button>
   </div>
@@ -244,8 +246,10 @@
 
   <a-scene cursor="rayOrigin: mouse; interval: 10" vr-mode-ui="enabled: false">
     
-    <a-sky id="cielo" color="#87CEEB"></a-sky> <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
-    <a-light id="sol" type="directional" color="#FFF" intensity="0.5" position="-1 4 -1"></a-light>
+    <a-sky id="cielo" color="#87CEEB"></a-sky>
+
+    <a-light type="ambient" color="#FFF" intensity="0.7"></a-light>
+    <a-light id="sol" type="directional" color="#FFF" intensity="0.6" position="-1 4 -1"></a-light>
 
     <a-entity id="nucleoRegenerador" position="0 1.5 -3" onclick="iniciarRegeneracion()">
       <a-octahedron color="#00f0ff" radius="0.3"
@@ -256,30 +260,71 @@
       <a-text value="ACTIVAR" align="center" position="0 -0.5 0" scale="0.8 0.8 0.8" color="#bd00ff" font="monoid"></a-text>
     </a-entity>
 
-    <a-plane id="sueloArena" rotation="-90 0 0" width="40" height="40" color="#f2d1a9">
-      <a-cone color="#2e6f40" radius-bottom="0.03" radius-top="0" height="0.15" position="1 0.08 2"></a-cone>
-      <a-cone color="#1e4620" radius-bottom="0.02" radius-top="0" height="0.1" position="-1.5 0.05 1.5"></a-cone>
-      <a-cone color="#2e6f40" radius-bottom="0.04" radius-top="0" height="0.18" position="0.5 0.1 -1"></a-cone>
-      <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.12" position="-2.2 0.06 -1.8"></a-cone>
-      <a-cone color="#2e6f40" radius-bottom="0.03" radius-top="0" height="0.14" position="3 0.07 -3"></a-cone>
+    <a-plane id="sueloArena" rotation="-90 0 0" width="50" height="50" color="#c29d70">
+      <a-cone color="#204e2c" radius-bottom="0.04" radius-top="0" height="0.18" position="1 0.5 2"></a-cone>
+      <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.12" position="1.1 0.5 2.2"></a-cone>
+      
+      <a-cone color="#1e4620" radius-bottom="0.02" radius-top="0" height="0.1" position="-1.5 0.5 1.5"></a-cone>
+      <a-cone color="#204e2c" radius-bottom="0.03" radius-top="0" height="0.14" position="-1.4 0.5 1.3"></a-cone>
+
+      <a-cone color="#204e2c" radius-bottom="0.04" radius-top="0" height="0.18" position="0.5 0.5 -1"></a-cone>
+      <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.12" position="-2.2 0.5 -1.8"></a-cone>
     </a-plane>
 
     <a-entity id="bosqueRegenerado" visible="false" position="0 0 0">
       
-      <a-entity id="arbolSecreto" position="-2.5 0 -4.5">
-        <a-cylinder color="#5c3a21" radius="0.22" height="3.2" position="0 1.6 0"></a-cylinder>
-        <a-sphere color="#1e4620" radius="1.3" position="0 3.2 0" opacity="0.95"></a-sphere>
+      <a-entity id="arbolSecreto" position="-2.8 0 -4.5">
+        <a-cylinder color="#4e2f1b" radius="0.25" height="3.2" position="0 1.6 0"></a-cylinder>
+        <a-cylinder color="#4e2f1b" radius="0.08" height="1.2" position="0.3 2 0.2" rotation="45 45 0"></a-cylinder>
         
-        <a-plane color="#C0C0C0" width="0.38" height="0.18" rotation="0 180 0" position="0 1.4 0.23" material="metalness: 0.9; roughness: 0.1">
-          <a-text value="852" color="#000" align="center" position="0 0 0.01" width="2.4" font="monoid" font-weight="bold"></a-text>
+        <a-sphere color="#1e4620" radius="1.3" position="0 3.2 0" opacity="0.95"></a-sphere>
+        <a-sphere color="#2e6f40" radius="1.0" position="0.5 3.5 0.5" opacity="0.9"></a-sphere>
+        <a-sphere color="#24572f" radius="0.9" position="-0.5 3.4 -0.4" opacity="0.9"></a-sphere>
+
+        <a-cone color="#1e4620" radius-bottom="0.05" radius-top="0" height="0.25" position="0.3 0.1 0.4"></a-cone>
+        <a-cone color="#204e2c" radius-bottom="0.04" radius-top="0" height="0.2" position="-0.4 0.1 0.3"></a-cone>
+        <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.15" position="0.2 0.1 -0.5"></a-cone>
+        
+        <a-plane color="#D3D3D3" width="0.38" height="0.18" rotation="0 180 0" position="0 1.4 0.42" material="metalness: 0.95; roughness: 0.05">
+          <a-text value="852" color="#000000" align="center" position="0 0 0.02" width="2.6" font="monoid" font-weight="bold"></a-text>
         </a-plane>
       </a-entity>
 
-      <a-entity position="2.8 0 -5" id="arbolPista" onclick="mostrarPistaPapel()">
-        <a-cylinder color="#4a2c00" radius="0.18" height="3" position="0 1.5 0"></a-cylinder>
-        <a-sphere color="#2a5d2c" radius="1.1" position="0 3 0"></a-sphere>
-        <a-cone color="#bd00ff" radius-bottom="0.08" radius-top="0" height="0.2" position="0 1.5 0.25" rotation="180 0 0"
-                animation="property: position; to: 0 1.4 0.25; dir: alternate; dur: 800; loop: true"></a-cone>
+      <a-entity position="3.2 0 -5.5" id="arbolPista" onclick="mostrarPistaPapel()">
+        <a-cylinder color="#3a1d10" radius="0.2" height="3" position="0 1.5 0"></a-cylinder>
+        <a-sphere color="#2a5d2c" radius="1.2" position="0 3 0"></a-sphere>
+        <a-sphere color="#1e411f" radius="0.9" position="-0.5 2.7 0.5" opacity="0.95"></a-sphere>
+        
+        <a-cone color="#204e2c" radius-bottom="0.05" radius-top="0" height="0.22" position="0.4 0.1 -0.2"></a-cone>
+        <a-cone color="#1e4620" radius-bottom="0.04" radius-top="0" height="0.18" position="-0.3 0.1 0.4"></a-cone>
+
+        <a-cone color="#bd00ff" radius-bottom="0.08" radius-top="0" height="0.2" position="0 1.5 0.28" rotation="180 0 0"
+                animation="property: position; to: 0 1.4 0.28; dir: alternate; dur: 800; loop: true"></a-cone>
+      </a-entity>
+
+      <a-entity position="-5.5 0 -2.5">
+        <a-cylinder color="#3d2211" radius="0.15" height="2.5" position="0 1.25 0"></a-cylinder>
+        <a-sphere color="#2e6f40" radius="0.95" position="0 2.4 0"></a-sphere>
+        <a-cone color="#1e4620" radius-bottom="0.05" radius-top="0" height="0.3" position="0.3 0.1 0.2"></a-cone>
+        <a-cone color="#204e2c" radius-bottom="0.04" radius-top="0" height="0.2" position="-0.2 0.1 -0.3"></a-cone>
+      </a-entity>
+
+      <a-entity position="5.5 0 -3.5">
+        <a-cylinder color="#3d2211" radius="0.15" height="2.2" position="0 1.1 0"></a-cylinder>
+        <a-sphere color="#1e4620" radius="0.85" position="0 2.1 0"></a-sphere>
+        <a-cone color="#1e4620" radius-bottom="0.06" radius-top="0" height="0.28" position="-0.4 0.1 0.1"></a-cone>
+        <a-cone color="#204e2c" radius-bottom="0.03" radius-top="0" height="0.15" position="0.1 0.1 0.4"></a-cone>
+      </a-entity>
+
+      <a-entity position="0 0 -5.5">
+        <a-cone color="#1e4620" radius-bottom="0.06" radius-top="0" height="0.35" position="-0.2 0.17 0"></a-cone>
+        <a-cone color="#204e2c" radius-bottom="0.05" radius-top="0" height="0.28" position="0.1 0.14 0.2"></a-cone>
+        <a-cone color="#1e4620" radius-bottom="0.04" radius-top="0" height="0.2" position="-0.1 0.1 0.4"></a-cone>
+      </a-entity>
+
+      <a-entity position="-1.5 0 -2.5">
+        <a-cone color="#204e2c" radius-bottom="0.05" radius-top="0" height="0.25" position="0 0.12 0"></a-cone>
+        <a-cone color="#1e4620" radius-bottom="0.03" radius-top="0" height="0.15" position="0.2 0.07 0.1"></a-cone>
       </a-entity>
 
       <a-entity id="baulContenedor" position="2.2 0 -3.2" rotation="0 -40 0">
@@ -317,38 +362,41 @@
     const rig = document.getElementById('rig');
     const camera = document.getElementById('camera');
     let moveDirection = { x: 0, z: 0 };
-    const movementSpeed = 0.08;
+    const movementSpeed = 0.06; // Ajustado para un movimiento más estable y realista
 
-    // 1. Inicialización del Joystick Virtual táctil
-    const manager = nipplejs.create({
-      zone: document.getElementById('joystick-zone'),
-      mode: 'static',
-      position: { left: '60px', top: '60px' },
-      color: '#00f0ff',
-      size: 90
+    // Inicializar el joystick tras la carga completa del DOM
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const manager = nipplejs.create({
+          zone: document.getElementById('joystick-zone'),
+          mode: 'static',
+          position: { left: '60px', top: '60px' },
+          color: '#00f0ff',
+          size: 90
+        });
+
+        manager.on('move', function (evt, data) {
+          if (!data.vector) return;
+          
+          // Obtener el ángulo de la cámara para moverse de forma relativa a donde mira el usuario
+          const rotation = camera.getAttribute('rotation');
+          const angle = (rotation.y * Math.PI) / 180;
+
+          const forward = data.vector.y;
+          const side = data.vector.x;
+
+          moveDirection.x = (side * Math.cos(angle) - forward * Math.sin(angle)) * movementSpeed;
+          moveDirection.z = (-side * Math.sin(angle) - forward * Math.cos(angle)) * movementSpeed;
+        });
+
+        manager.on('end', function () {
+          moveDirection.x = 0;
+          moveDirection.z = 0;
+        });
+      }, 500); // Pequeño retraso para que el viewport del móvil esté bien definido
     });
 
-    manager.on('move', function (evt, data) {
-      if (!data.vector) return;
-      
-      // Obtener el ángulo de la cámara para que el personaje camine hacia donde está mirando
-      const rotation = camera.getAttribute('rotation');
-      const angle = (rotation.y * Math.PI) / 180;
-
-      // Calcular el vector de movimiento basado en el ángulo del joystick
-      const forward = data.vector.y;
-      const side = data.vector.x;
-
-      moveDirection.x = (side * Math.cos(angle) - forward * Math.sin(angle)) * movementSpeed;
-      moveDirection.z = (-side * Math.sin(angle) - forward * Math.cos(angle)) * movementSpeed;
-    });
-
-    manager.on('end', function () {
-      moveDirection.x = 0;
-      moveDirection.z = 0;
-    });
-
-    // Bucle de física manual de A-Frame para mover la cámara suavemente
+    // Bucle para actualizar la posición en tiempo real
     function tick() {
       if (moveDirection.x !== 0 || moveDirection.z !== 0) {
         const currentPos = rig.getAttribute('position');
@@ -362,7 +410,7 @@
     }
     tick();
 
-    // 2. Lógicas del juego (Regeneración, pistas, candado)
+    // Lógica del videojuego
     function iniciarRegeneracion() {
       if (bosqueActivo) return;
       bosqueActivo = true;
@@ -373,7 +421,7 @@
       bosque.setAttribute('visible', 'true');
       bosque.setAttribute('animation', 'property: scale; from: 0.1 0.1 0.1; to: 1 1 1; dur: 2500; easing: easeOutElastic');
 
-      document.getElementById("gameMsg").innerText = "¡Oasis regenerado! Explora usando el joystick virtual de la izquierda.";
+      document.getElementById("gameMsg").innerText = "¡Oasis regenerado! Explora usando el joystick virtual en la esquina inferior izquierda.";
     }
 
     function mostrarPistaPapel() {
@@ -383,7 +431,7 @@
 
     function cerrarParchment() {
       document.getElementById("parchmentUI").style.display = "none";
-      document.getElementById("gameMsg").innerText = "Encuentra el código de 3 dígitos detrás del árbol plateado e ingrésalo en el baúl.";
+      document.getElementById("gameMsg").innerText = "Busca el código de 3 dígitos detrás del árbol izquierdo. El baúl está cerca del sauce.";
     }
 
     function abrirInterfazCofre() {

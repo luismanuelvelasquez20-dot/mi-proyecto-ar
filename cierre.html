@@ -2,14 +2,25 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Cierre Especial - Sincronización Final</title>
+  <title>Cierre Especial - Restauradores del Aprendizaje</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Rajdhani:wght@300;600&display=swap');
     
     body { margin: 0; overflow: hidden; background: #000; }
     
-    /* Capa de créditos holográficos */
+    /* BLOQUEADOR DE ORIENTACIÓN OBLIGATORIO */
+    #orientation-blocker {
+        display: none; position: fixed; inset: 0; background: #000; z-index: 10000;
+        justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
+        padding: 20px; box-sizing: border-box; font-family: 'Rajdhani', sans-serif;
+    }
+    @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
+    /* CAPA DE CRÉDITOS HOLOGRÁFICOS */
     #credits-overlay {
       position: fixed;
       top: 0;
@@ -22,7 +33,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle, rgba(0,240,255,0.05) 0%, rgba(0,0,0,1) 80%);
+      background: radial-gradient(circle, rgba(0,240,255,0.05) 0%, rgba(0,0,0,0.9) 80%);
       color: white;
       text-align: center;
       font-family: 'Rajdhani', sans-serif;
@@ -30,29 +41,54 @@
 
     .title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       color: #00f0ff;
       text-shadow: 0 0 20px #00f0ff;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       animation: fadeIn 3s ease-in;
     }
 
-    .subtitle { font-size: 1.2rem; letter-spacing: 4px; opacity: 0.8; margin-bottom: 50px; }
+    .subtitle { 
+      font-size: 1rem; 
+      letter-spacing: 5px; 
+      opacity: 0.7; 
+      margin-bottom: 40px; 
+      color: #ffd700;
+      font-family: 'Orbitron';
+    }
 
-    .credit-line { font-size: 1.1rem; margin: 10px 0; opacity: 0; animation: fadeInUp 2s forwards; }
+    .credit-line { 
+      font-size: 1.1rem; 
+      margin: 12px 0; 
+      opacity: 0; 
+      animation: fadeInUp 2s forwards; 
+    }
 
-    .btn-exit {
+    .quote {
+      margin-top: 30px;
+      font-style: italic;
+      color: #00f0ff;
+      max-width: 80%;
+      opacity: 0;
+      animation: fadeIn 4s forwards 8s;
+    }
+
+    .btn-restart {
       pointer-events: auto;
-      margin-top: 40px;
+      margin-top: 50px;
       background: none;
       border: 1px solid #ffd700;
       color: #ffd700;
-      padding: 10px 25px;
+      padding: 12px 30px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
       transition: 0.4s;
+      opacity: 0;
+      animation: fadeIn 2s forwards 10s;
     }
-    .btn-exit:hover { background: #ffd700; color: #000; box-shadow: 0 0 20px #ffd700; }
+    .btn-restart:hover { background: #ffd700; color: #000; box-shadow: 0 0 20px #ffd700; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -60,54 +96,64 @@
 </head>
 <body>
 
+  <div id="orientation-blocker">
+      <h2 style="font-family: 'Orbitron'; color:#ffd700;">GIRA TU DISPOSITIVO</h2>
+      <p>Disfruta de la sincronización final en modo panorámico.</p>
+  </div>
+
   <div id="credits-overlay">
     <div class="title">RESTAURADORES DEL APRENDIZAJE</div>
-    <div class="subtitle">Sincronización de Mundos Completada</div>
+    <div class="subtitle">MISIÓN COMPLETADA</div>
     
-    <div class="credit-line" style="animation-delay: 2s;">Diseño y Desarrollo: <b>Luis</b></div>
-    <div class="credit-line" style="animation-delay: 4s;">Concepto Pedagógico: <b>Gamificación Inmersiva</b></div>
-    <div class="credit-line" style="animation-delay: 6s;">Tecnologías: <b>A-Frame, WebXR & HTML5</b></div>
-    <div class="credit-line" style="animation-delay: 8s;">"Restaurar el asombro para transformar la educación."</div>
+    <div class="credit-line" style="animation-delay: 2s;">Desarrollo y Arquitectura: <b>Luis</b></div>
+    <div class="credit-line" style="animation-delay: 4s;">Concepto Narrativo: <b>Convergencia Digital</b></div>
+    <div class="credit-line" style="animation-delay: 6s;">Sincronización: <b>Realidad Aumentada & Gamificación</b></div>
+    
+    <div class="quote">
+        "Has restaurado el asombro. El conocimiento vuelve a brillar."
+    </div>
 
-    <button class="btn-exit" onclick="window.location.href='index.html'" 
-            style="animation-delay: 10s; opacity:0; animation: fadeIn 2s forwards 10s;">
-      REINICIAR SISTEMA
-    </button>
+    <button class="btn-restart" onclick="window.location.href='index.html'">REINICIAR SISTEMA</button>
   </div>
 
   <a-scene vr-mode-ui="enabled: false">
-    <a-sky color="#050510"></a-sky>
+    <a-sky color="#020205"></a-sky>
     
-    <a-entity position="0 1.5 -5">
-      <a-dodecahedron color="#00f0ff" radius="1.5" material="wireframe: true;"
-                      animation="property: rotation; to: 360 360 0; dur: 20000; loop: true; easing: linear">
+    <a-entity id="nucleo-final" position="0 1.5 -6">
+      <a-dodecahedron color="#00f0ff" radius="1.8" material="wireframe: true; opacity: 0.4"
+                      animation="property: rotation; to: 360 360 0; dur: 25000; loop: true; easing: linear">
       </a-dodecahedron>
       
-      <a-dodecahedron color="#bd00ff" radius="0.8"
-                      animation="property: rotation; to: -360 0 360; dur: 15000; loop: true; easing: linear">
+      <a-dodecahedron color="#bd00ff" radius="1.2" material="opacity: 0.6; transparent: true"
+                      animation="property: rotation; to: -360 0 360; dur: 20000; loop: true; easing: linear">
       </a-dodecahedron>
+
+      <a-octahedron color="#ffd700" radius="0.5" material="emissive: #ffd700; emissiveIntensity: 2"
+                    animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 2000; loop: true">
+      </a-octahedron>
       
-      <a-light type="point" color="#00f0ff" intensity="2" distance="10"></a-light>
+      <a-light type="point" color="#00f0ff" intensity="2" distance="15"></a-light>
     </a-entity>
 
     <a-entity id="particles">
       <script>
-        for (let i = 0; i < 60; i++) {
+        const scene = document.querySelector('a-scene');
+        for (let i = 0; i < 80; i++) {
           let p = document.createElement('a-sphere');
           p.setAttribute('color', Math.random() > 0.5 ? '#00f0ff' : '#ffd700');
           p.setAttribute('radius', '0.02');
-          let x = (Math.random() - 0.5) * 25;
-          let y = (Math.random() - 0.5) * 15;
-          let z = (Math.random() - 0.5) * 25;
+          let x = (Math.random() - 0.5) * 30;
+          let y = (Math.random() - 0.5) * 20;
+          let z = (Math.random() - 0.5) * 30;
           p.setAttribute('position', `${x} ${y} ${z}`);
-          p.setAttribute('animation', `property: position; to: ${x} ${y + 1} ${z}; dir: alternate; dur: ${3000 + Math.random()*4000}; loop: true; easing: easeInOutQuad`);
-          document.querySelector('a-scene').appendChild(p);
+          p.setAttribute('animation', `property: position; to: ${x} ${y + 2} ${z}; dir: alternate; dur: ${Math.random()*5000 + 3000}; loop: true; easing: easeInOutQuad`);
+          scene.appendChild(p);
         }
       </script>
     </a-entity>
 
-    <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 60000; loop: true; easing: linear">
-      <a-camera position="0 1.6 10" look-controls-enabled="false"></a-camera>
+    <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 80000; loop: true; easing: linear">
+      <a-camera position="0 1.6 12" look-controls-enabled="false" wasd-controls-enabled="false"></a-camera>
     </a-entity>
   </a-scene>
 

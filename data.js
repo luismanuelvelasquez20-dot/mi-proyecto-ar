@@ -1,5 +1,5 @@
 // =======================================================
-// data.js - MOTOR DE IDENTIDAD, PUNTOS Y SEGURIDAD
+// data.js - MOTOR DE IDENTIDAD Y AUTO-REPARACIÓN
 // =======================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,16 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function inicializarBaseDeDatos() {
     if (!localStorage.getItem("usuarios_registrados")) {
-        // Usuarios iniciales en hibernación (Todo en false/cero)
         const dbInicial = {
             "aura": { 
                 contrasena: "2026", rol: "estudiante", puntos: 0, 
-                progreso: { intro: false, prueba: false, desafio: false, nucleo: false },
-                logros: { relic1: false, relic2: false, relic3: false },
-                descubrimientos: [] 
-            },
-            "visitante": { 
-                contrasena: "0000", rol: "invitado", puntos: 0, 
                 progreso: { intro: false, prueba: false, desafio: false, nucleo: false },
                 logros: { relic1: false, relic2: false, relic3: false },
                 descubrimientos: [] 
@@ -31,54 +24,43 @@ function getUsuarioActivo() {
     return localStorage.getItem("usuarioActivo");
 }
 
-// FUNCIÓN PARA GUARDAR AVANCES (Puntos, Reliquias, Frases)
 function registrarAvanceGlobal(nivelKey, relicKey, puntos, frase) {
     const user = getUsuarioActivo();
     if (!user) return;
 
-    let usuarios = JSON.parse(localStorage.getItem("usuarios_registrados"));
+    let usuarios = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
     let d = usuarios[user];
 
+    if (!d) return;
+
+    // --- AUTO-REPARACIÓN DE ESTRUCTURA ---
+    if (!d.logros) d.logros = { relic1: false, relic2: false, relic3: false };
+    if (!d.progreso) d.progreso = { intro: false, prueba: false, desafio: false, nucleo: false };
+    if (!d.descubrimientos) d.descubrimientos = [];
+    if (d.puntos === undefined) d.puntos = 0;
+
+    // Guardar Avances
     if (nivelKey) d.progreso[nivelKey] = true;
     if (relicKey) d.logros[relicKey] = true;
-    
-    // Sumar puntos
     if (puntos) d.puntos += puntos;
-    
-    // Añadir a bitácora sin duplicar
     if (frase && !d.descubrimientos.includes(frase)) {
         d.descubrimientos.push(frase);
     }
 
     localStorage.setItem("usuarios_registrados", JSON.stringify(usuarios));
-    console.log(`[Sistema] Datos guardados exitosamente para ${user}`);
+    console.log("Datos sincronizados para:", user);
 }
 
-// FUNCIÓN DE REINICIO (Para el botón del Perfil)
 function reiniciarTodoElProgreso() {
     const user = getUsuarioActivo();
     if (!user) return;
-
-    if (confirm(`¿${user.toUpperCase()}, estás seguro de borrar todas las reliquias y puntos?`)) {
+    if (confirm("¿Seguro que quieres borrar todas tus reliquias y puntos?")) {
         let usuarios = JSON.parse(localStorage.getItem("usuarios_registrados"));
-        
-        // Formatear todo a 0 y false
         usuarios[user].puntos = 0;
         usuarios[user].progreso = { intro: false, prueba: false, desafio: false, nucleo: false };
         usuarios[user].logros = { relic1: false, relic2: false, relic3: false };
         usuarios[user].descubrimientos = [];
-
         localStorage.setItem("usuarios_registrados", JSON.stringify(usuarios));
-        alert("Sistema reiniciado. Volviendo al estado de hibernación.");
-        
-        // Recargar la página para ver los cambios
         window.location.reload();
     }
-}
-
-// FUNCIÓN DE CIERRE DE SESIÓN
-function cerrarSesion() {
-    localStorage.removeItem("usuarioActivo");
-    localStorage.removeItem("rolActivo");
-    window.location.href = "index.html";
 }

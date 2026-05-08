@@ -15,21 +15,18 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Rajdhani', sans-serif; }
 
-        /* BLOQUEADOR DE ROTACIÓN */
         #orientation-blocker {
             display: none; position: fixed; inset: 0; background: #0a0a15; z-index: 10000;
             justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
         }
         @media (orientation: portrait) { #orientation-blocker { display: flex; } }
 
-        /* BOTÓN ABANDONAR */
         #btn-menu {
             position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px; border: 1px solid #ffd700;
             border-radius: 8px; background: rgba(255, 215, 0, 0.1); color: #ffd700; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
         }
         #btn-menu:hover { background: #ffd700; color: #000; }
 
-        /* HUD */
         #hud-top {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             text-align: center; color: #ffd700; z-index: 100; pointer-events: none;
@@ -38,33 +35,28 @@
 
         #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
 
-        /* PANEL DE CÓDIGO (ALTAR) */
         #code-panel {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(5, 5, 15, 0.98); border: 2px solid #ffd700; padding: 25px;
-            border-radius: 15px; z-index: 500; text-align: center; color: white;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+            border-radius: 15px; z-index: 500; text-align: center; color: white; box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
         }
         .code-display { font-family: 'Orbitron'; font-size: 2.2rem; color: #00f0ff; margin: 15px 0; letter-spacing: 8px; background: #000; padding: 10px; border-radius: 5px; }
         .num-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .key { padding: 12px; background: #111; border: 1px solid #ffd700; color: white; cursor: pointer; font-family: 'Orbitron'; font-size: 1.2rem; }
         .key:active { background: #ffd700; color: black; }
 
-        /* CARTEL DE INFORMACIÓN (HOLOGRÁFICO) */
         #hologram-ui {
             display: none; position: fixed; bottom: 30px; right: 30px; width: 300px;
             background: rgba(0, 240, 255, 0.1); border: 2px solid #00f0ff; padding: 20px;
-            color: white; border-radius: 10px; backdrop-filter: blur(10px); z-index: 400;
-            animation: slideIn 0.5s ease-out;
+            color: white; border-radius: 10px; backdrop-filter: blur(10px); z-index: 400; animation: slideIn 0.5s ease-out;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* PANTALLA DE VICTORIA PARA MÓVIL */
         #victory-screen {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
             flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
         }
-        #victory-screen h1 { font-family: 'Orbitron'; color: #ffd700; text-shadow: 0 0 20px #ffd700; font-size: 2.5rem; margin-bottom: 10px; }
+        #victory-screen h1 { font-family: 'Orbitron'; color: #ffd700; text-shadow: 0 0 30px #ffd700; font-size: 2.5rem; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -94,7 +86,7 @@
     <div id="victory-screen">
         <h1>✨ RELIQUIA DE INTUICIÓN ✨</h1>
         <p style="font-size: 1.2rem; max-width: 600px; color: #ccc;">Sincronización inicial completa. Has abierto el portal del Restaurador.</p>
-        <button style="margin-top:30px; padding:15px 40px; font-family:'Orbitron'; font-weight:bold; background:#ffd700; border:none; border-radius:8px; cursor:pointer;" onclick="window.location.href='menu.html'">VOLVER AL PORTAL</button>
+        <button style="margin-top:30px; padding:15px 40px; font-family:'Orbitron'; font-weight:bold; background:#ffd700; border:none; border-radius:8px; cursor:pointer;" onclick="guardarYVolver()">VOLVER AL PORTAL</button>
     </div>
 
     <div id="code-panel">
@@ -211,6 +203,23 @@
             }
         }
 
+        // --- SISTEMA DE GUARDADO A PRUEBA DE FALLOS ---
+        function forzarGuardado() {
+            // Intentamos ejecutar la función de guardado
+            if(typeof registrarAvanceGlobal === "function") {
+                registrarAvanceGlobal("intro", "relic1", 500, "Nivel 1: Sincronización completa. El Restaurador ha despertado la Reliquia de la Intuición.");
+            } 
+            // Fallback por si data.js tiene otro nombre
+            else if (typeof registrarDescubrimientoGlobal === "function") {
+                registrarDescubrimientoGlobal("intro", "relic1", 500, "Nivel 1: Sincronización completa. El Restaurador ha despertado la Reliquia de la Intuición.");
+            }
+        }
+
+        function guardarYVolver() {
+            forzarGuardado(); // Obligamos a guardar justo en el momento del clic
+            window.location.href = "menu.html";
+        }
+
         function animarGranFinal() {
             document.getElementById("tapa-cofre").emit("open");
             const rel = document.getElementById("reliquia_master");
@@ -219,12 +228,8 @@
             document.getElementById("relic-light").setAttribute("animation", "property: intensity; to: 5; dur: 2000");
 
             setTimeout(() => {
-                // AQUÍ APARECE LA PANTALLA EN LUGAR DEL ALERT
                 document.getElementById("victory-screen").style.display = "flex";
-
-                if(typeof registrarAvanceGlobal === "function") {
-                    registrarAvanceGlobal("intro", "relic1", 500, "Nivel 1: Sincronización completa. El Restaurador ha despertado la Reliquia de la Intuición.");
-                }
+                forzarGuardado(); // Guardamos automáticamente por si acaso
             }, 3500);
         }
 

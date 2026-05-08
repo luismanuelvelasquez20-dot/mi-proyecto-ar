@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Fragmento: Explorar & Crear - Restauradores RA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f0faff; font-family: 'Rajdhani', sans-serif; }
+
+        /* HUD Narrativo */
+        #status-hud {
+            position: fixed; top: 20px; left: 20px; z-index: 100;
+            color: #00f0ff; font-family: 'Orbitron'; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            pointer-events: none;
+        }
+
+        #btn-back {
+            position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px;
+            background: rgba(0, 240, 255, 0.1); border: 1px solid #00f0ff; color: #0088aa;
+            border-radius: 5px; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        #btn-back:hover { background: #00f0ff; color: #fff; box-shadow: 0 0 15px #00f0ff; }
+
+        #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
+
+        /* Lore Box (Interfaz Limpia) */
+        #lore-box {
+            position: fixed; bottom: 40px; right: 40px; width: 300px;
+            background: rgba(255, 255, 255, 0.9); border-right: 5px solid #00f0ff;
+            padding: 20px; color: #333; border-radius: 10px 0 0 10px;
+            display: none; animation: slideUp 0.4s ease-out; z-index: 90;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="status-hud">
+        <h2 style="margin:0; color: #0088aa;">ZONA: NEXO-C (EXPLORACIÓN)</h2>
+        <small style="color: #00bfff;">ESTADO: CREATIVIDAD AL 100%</small>
+    </div>
+
+    <button id="btn-back" onclick="window.location.href='menu.html'">REGRESAR AL DASHBOARD</button>
+    <div id="joystick-zone"></div>
+
+    <div id="lore-box">
+        <strong style="color:#0088aa; font-family:'Orbitron'; font-size: 0.9rem;">MANIFIESTO CREATIVO</strong>
+        <p id="lore-text" style="font-size: 1rem; line-height: 1.4; margin-top: 10px; font-weight: 500;">...</p>
+    </div>
+
+    <a-scene fog="type: exponential; color: #f0faff; density: 0.02" vr-mode-ui="enabled: false">
+        
+        <a-sky color="#dbf3ff"></a-sky>
+
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#ffffff" material="metalness: 0.6; roughness: 0.1; opacity: 0.8; transparent: true;"></a-plane>
+        <a-grid position="0 0.01 0" rotation="-90 0 0" width="100" height="100" static-body material="color: #00f0ff; opacity: 0.1;"></a-grid>
+
+        <a-entity id="estructuras">
+            <script>
+                const scene = document.querySelector('a-scene');
+                for(let i=0; i<12; i++){
+                    let x = (Math.random() - 0.5) * 30;
+                    let z = (Math.random() - 0.5) * 30 - 10;
+                    
+                    // Columnas
+                    let col = document.createElement('a-cylinder');
+                    col.setAttribute('position', `${x} 5 ${z}`);
+                    col.setAttribute('radius', '0.1');
+                    col.setAttribute('height', '10');
+                    col.setAttribute('color', '#00f0ff');
+                    col.setAttribute('opacity', '0.3');
+                    scene.appendChild(col);
+
+                    // Cubos flotantes
+                    let box = document.createElement('a-box');
+                    box.setAttribute('position', `${x} ${Math.random()*4 + 1} ${z}`);
+                    box.setAttribute('width', '0.5'); box.setAttribute('height', '0.5'); box.setAttribute('depth', '0.5');
+                    box.setAttribute('color', '#fff');
+                    box.setAttribute('material', 'metalness: 0.9; roughness: 0.1');
+                    box.setAttribute('animation', `property: rotation; to: 360 360 0; loop: true; dur: ${Math.random()*4000 + 3000}`);
+                    scene.appendChild(box);
+                }
+            </script>
+        </a-entity>
+
+        <a-entity id="faro-final" position="0 0 -20">
+            <a-cone radius-bottom="2" radius-top="0" height="4" color="#ffffff" material="opacity: 0.5; transparent: true;"></a-cone>
+            <a-sphere position="0 4 0" radius="0.8" color="#ffd700" material="emissive: #ffd700; emissiveIntensity: 2;"
+                      animation="property: position; to: 0 4.5 0; dir: alternate; dur: 2000; loop: true"></a-sphere>
+            <a-light type="point" color="#ffd700" intensity="1.5" distance="15" position="0 4 0"></a-light>
+            <a-text value="CREAR" position="0 2.5 0" align="center" width="6" color="#0088aa" font="orbitron"></a-text>
+        </a-entity>
+
+        <a-entity id="rig" position="0 0 5">
+            <a-camera id="camera" look-controls="pointerLockEnabled: false"></a-camera>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        // Joystick
+        const manager = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static', position: {left: '60px', bottom: '60px'},
+            color: '#00f0ff', size: 100
+        });
+
+        const rig = document.getElementById('rig');
+        const camera = document.getElementById('camera');
+        let moveX = 0, moveZ = 0;
+
+        manager.on('move', (evt, data) => {
+            const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
+            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.15;
+            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.15;
+        });
+        manager.on('end', () => { moveX = 0; moveZ = 0; });
+
+        // Mensajes de Inspiración
+        const hitosInspiracion = [
+            { pos: {x: 0, z: 0}, texto: "Explorar es el primer paso para dejar de ser un espectador y convertirte en creador." },
+            { pos: {x: 0, z: -8}, texto: "La Realidad Aumentada no solo cambia lo que ves, cambia lo que puedes imaginar." },
+            { pos: {x: 0, z: -16}, texto: "El futuro de la educación no está en los libros, sino en las manos de quienes se atreven a inventar." }
+        ];
+
+        function gameLoop() {
+            const pos = rig.getAttribute('position');
+            pos.x += moveX; pos.z += moveZ;
+            rig.setAttribute('position', pos);
+
+            let cerca = false;
+            hitosInspiracion.forEach(h => {
+                if(Math.hypot(pos.x - h.pos.x, pos.z - h.pos.z) < 4) {
+                    document.getElementById("lore-text").innerText = h.texto;
+                    document.getElementById("lore-box").style.display = "block";
+                    cerca = true;
+                }
+            });
+            if(!cerca) document.getElementById("lore-box").style.display = "none";
+
+            // Final
+            if(Math.hypot(pos.x, pos.z + 20) < 2.5) {
+                if(typeof registrarAvanceGlobal === "function") {
+                    registrarAvanceGlobal(null, null, 300, "Misión Exploración: La chispa de la invención ha sido activada.");
+                }
+                alert("SINCRO EXITOSA: Has absorbido el potencial creativo. Regresando al Dashboard.");
+                window.location.href = 'menu.html';
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>

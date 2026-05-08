@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Fragmento: Rutina - Restauradores RA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #111; font-family: 'Rajdhani', sans-serif; }
+
+        /* UI de Narración */
+        #narrative-hud {
+            position: fixed; top: 20px; left: 20px; z-index: 100;
+            color: #ff4444; font-family: 'Orbitron'; text-shadow: 0 0 10px #ff4444;
+            pointer-events: none;
+        }
+
+        #btn-back {
+            position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px;
+            background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; color: #ff4444;
+            border-radius: 5px; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
+        }
+        #btn-back:hover { background: #ff4444; color: #000; }
+
+        #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
+
+        /* Cuadro de texto de Lore */
+        #lore-box {
+            position: fixed; bottom: 40px; right: 40px; width: 300px;
+            background: rgba(20, 20, 20, 0.9); border-left: 5px solid #ff4444;
+            padding: 20px; color: #ccc; border-radius: 0 10px 10px 0;
+            display: none; animation: fadeIn 0.5s; z-index: 90;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="narrative-hud">
+        <h2 style="margin:0;">ZONA: MEMORIA 0-A (RUTINA)</h2>
+        <small>ESTADO: DESCONEXIÓN CRÍTICA</small>
+    </div>
+
+    <button id="btn-back" onclick="window.location.href='menu.html'">REGRESAR AL DASHBOARD</button>
+    <div id="joystick-zone"></div>
+
+    <div id="lore-box">
+        <strong id="lore-title" style="color:#ff4444; font-family:'Orbitron';">ECO DETECTADO</strong>
+        <p id="lore-text" style="font-style:italic;">...</p>
+    </div>
+
+    <a-scene fog="type: exponential; color: #1a1a1a; density: 0.1" vr-mode-ui="enabled: false">
+        
+        <a-sky color="#050505"></a-sky>
+
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#222" material="wireframe: true; opacity: 0.3"></a-plane>
+
+        <a-entity id="escuela-gris">
+            <script>
+                const scene = document.querySelector('a-scene');
+                for(let i=0; i<5; i++) {
+                    for(let j=0; j<5; j++) {
+                        let desk = document.createElement('a-box');
+                        desk.setAttribute('position', `${(i-2)*4} 0.5 ${(j-2)*4 - 10}`);
+                        desk.setAttribute('width', '1'); desk.setAttribute('height', '0.8'); desk.setAttribute('depth', '1');
+                        desk.setAttribute('color', '#444');
+                        scene.appendChild(desk);
+                    }
+                }
+            </script>
+        </a-entity>
+
+        <a-entity id="eco-final" position="0 1.5 -18">
+            <a-sphere radius="0.5" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 2;"
+                      animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 1000; loop: true"></a-sphere>
+            <a-light type="point" color="#00f0ff" intensity="1" distance="10"></a-light>
+            <a-text value="RESTAURAR" position="0 1 0" align="center" width="4" color="#00f0ff" font="orbitron"></a-text>
+        </a-entity>
+
+        <a-box position="-5 5 -10" color="#ff4444" material="opacity: 0.1; transparent: true"
+               animation="property: rotation; to: 360 0 360; loop: true; dur: 5000"></a-box>
+        <a-box position="5 3 -15" color="#ff4444" material="opacity: 0.1; transparent: true"
+               animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-box>
+
+        <a-entity id="rig" position="0 0 5">
+            <a-camera id="camera" look-controls="pointerLockEnabled: false"></a-camera>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        // Joystick
+        const manager = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static', position: {left: '60px', bottom: '60px'},
+            color: '#ff4444', size: 100
+        });
+
+        const rig = document.getElementById('rig');
+        const camera = document.getElementById('camera');
+        let moveX = 0, moveZ = 0;
+
+        manager.on('move', (evt, data) => {
+            const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
+            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.1;
+            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.1;
+        });
+        manager.on('end', () => { moveX = 0; moveZ = 0; });
+
+        // Lógica de Lore (Frases que aparecen según la posición)
+        const frasesLore = [
+            { pos: {x: 0, z: 0}, texto: "El silencio en el aula no siempre es respeto; a veces es el sonido del interés muriendo." },
+            { pos: {x: 0, z: -8}, texto: "Aprender no es memorizar datos, es encender una llama que la rutina intenta apagar." },
+            { pos: {x: 0, z: -15}, texto: "Has encontrado un fragmento de asombro. Llévalo de vuelta al Núcleo." }
+        ];
+
+        function gameLoop() {
+            const pos = rig.getAttribute('position');
+            pos.x += moveX; pos.z += moveZ;
+            rig.setAttribute('position', pos);
+
+            // Chequear cercanía a puntos de lore
+            let loreActivo = false;
+            frasesLore.forEach(f => {
+                const dist = Math.hypot(pos.x - f.pos.x, pos.z - f.pos.z);
+                if(dist < 3) {
+                    document.getElementById("lore-text").innerText = f.texto;
+                    document.getElementById("lore-box").style.display = "block";
+                    loreActivo = true;
+                }
+            });
+            if(!loreActivo) document.getElementById("lore-box").style.display = "none";
+
+            // Chequear si llega al Eco Final
+            const distFinal = Math.hypot(pos.x, pos.z + 18);
+            if(distFinal < 1.5) {
+                alert("ECO RECUPERADO: La chispa de la curiosidad ha sido salvada.");
+                window.location.href = 'menu.html';
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>

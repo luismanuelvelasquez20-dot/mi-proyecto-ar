@@ -1,320 +1,197 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terminal de Identidad</title>
+    <meta charset="UTF-8">
+    <title>Registro de Operador - Restauradores RA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+        body { 
+            margin: 0; 
+            background: #050510; 
+            color: white; 
+            font-family: 'Rajdhani', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
 
-    :root{
-      --cyan:#00f0ff;
-      --green:#00ffcc;
-      --danger:#ff0055;
-      --bg:#020208;
-      --panel:rgba(10,10,25,0.92);
-    }
+        .box { 
+            background: rgba(10, 10, 30, 0.95); 
+            border: 1px solid #bd00ff; 
+            padding: 40px; 
+            border-radius: 15px; 
+            text-align: center; 
+            width: 100%; 
+            max-width: 350px; 
+            box-shadow: 0 0 30px rgba(189, 0, 255, 0.2); 
+            animation: fadeIn 0.8s ease-out;
+        }
 
-    *{
-      box-sizing:border-box;
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    body{
-      margin:0;
-      padding:20px;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      background:
-        radial-gradient(circle at top left, rgba(0,240,255,0.12), transparent 40%),
-        radial-gradient(circle at bottom right, rgba(189,0,255,0.15), transparent 40%),
-        var(--bg);
+        h1 { 
+            font-family: 'Orbitron'; 
+            color: #bd00ff; 
+            letter-spacing: 2px; 
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(189, 0, 255, 0.5);
+        }
 
-      color:white;
-      font-family:'Rajdhani',sans-serif;
-    }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
 
-    .reg-container{
-      width:100%;
-      max-width:450px;
-      background:var(--panel);
-      border:2px solid var(--green);
-      border-radius:20px;
-      padding:40px;
-      box-shadow:
-        0 0 30px rgba(0,255,204,0.15),
-        inset 0 0 20px rgba(0,240,255,0.08);
+        label {
+            display: block;
+            font-family: 'Orbitron';
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+            margin-left: 5px;
+        }
 
-      backdrop-filter:blur(10px);
-    }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid #333; 
+            color: white; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            outline: none; 
+            font-family: 'Rajdhani';
+            font-size: 1rem;
+            transition: 0.3s;
+        }
 
-    h1{
-      text-align:center;
-      font-family:'Orbitron',sans-serif;
-      color:var(--green);
-      margin-bottom:30px;
-      letter-spacing:2px;
-      font-size:1.5rem;
-    }
+        input:focus { 
+            border-color: #bd00ff; 
+            background: rgba(189, 0, 255, 0.05);
+            box-shadow: 0 0 10px rgba(189, 0, 255, 0.1);
+        }
 
-    .input-group{
-      margin-bottom:18px;
-    }
+        .btn-register { 
+            width: 100%; 
+            padding: 15px; 
+            background: transparent; 
+            border: 1px solid #bd00ff; 
+            color: #bd00ff; 
+            font-family: 'Orbitron'; 
+            cursor: pointer; 
+            font-weight: bold; 
+            letter-spacing: 1px;
+            transition: 0.3s; 
+            margin-top: 10px;
+        }
 
-    label{
-      display:block;
-      margin-bottom:6px;
-      color:var(--cyan);
-      font-size:0.8rem;
-      font-family:'Orbitron';
-      letter-spacing:1px;
-    }
+        .btn-register:hover { 
+            background: #bd00ff; 
+            color: white; 
+            box-shadow: 0 0 20px rgba(189, 0, 255, 0.4);
+        }
 
-    input, select{
-      width:100%;
-      padding:13px;
-      border-radius:10px;
-      border:1px solid rgba(0,255,204,0.3);
-      background:rgba(255,255,255,0.05);
-      color:white;
-      font-size:1rem;
-      outline:none;
-      transition:0.3s;
-    }
+        .footer-link {
+            margin-top: 25px;
+            display: block;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
 
-    input:focus,
-    select:focus{
-      border-color:var(--cyan);
-      box-shadow:0 0 10px rgba(0,240,255,0.3);
-    }
+        .footer-link:hover {
+            color: #bd00ff;
+        }
 
-    option{
-      background:#111;
-      color:white;
-    }
-
-    .btn-save{
-      width:100%;
-      padding:15px;
-      margin-top:20px;
-      border:none;
-      border-radius:10px;
-      background:var(--green);
-      color:black;
-      font-family:'Orbitron';
-      font-weight:bold;
-      cursor:pointer;
-      transition:0.3s;
-      letter-spacing:1px;
-    }
-
-    .btn-save:hover{
-      background:white;
-      box-shadow:0 0 20px var(--green);
-    }
-
-    .btn-back{
-      display:block;
-      text-align:center;
-      margin-top:18px;
-      color:#888;
-      text-decoration:none;
-      transition:0.3s;
-    }
-
-    .btn-back:hover{
-      color:white;
-    }
-
-    #msg{
-      margin-top:18px;
-      text-align:center;
-      font-weight:bold;
-      min-height:22px;
-    }
-
-    .success{
-      color:var(--green);
-    }
-
-    .error{
-      color:var(--danger);
-    }
-
-  </style>
+        .footer-link b { color: #bd00ff; }
+    </style>
 </head>
-
 <body>
 
-  <div class="reg-container">
+    <div class="box">
+        <h1>REGISTRO</h1>
+        
+        <div class="input-group">
+            <label>NOMBRE DE OPERADOR</label>
+            <input type="text" id="nu" placeholder="Ej: Luis_01" autocomplete="off">
+        </div>
 
-    <h1>CREAR IDENTIDAD</h1>
+        <div class="input-group">
+            <label>CÓDIGO DE ACCESO</label>
+            <input type="password" id="np" placeholder="••••••••" autocomplete="off">
+        </div>
 
-    <div class="input-group">
-      <label>NOMBRE DE USUARIO</label>
-      <input
-        type="text"
-        id="reg-user"
-        placeholder="Ej: NeoCoder"
-        maxlength="15"
-      >
+        <button class="btn-register" onclick="crearCuenta()">INICIALIZAR IDENTIDAD</button>
+        
+        <a href="index.html" class="footer-link">¿Ya tienes una identidad? <b>Inicia sesión</b></a>
     </div>
 
-    <div class="input-group">
-      <label>CÓDIGO SECRETO</label>
-      <input
-        type="password"
-        id="reg-pass"
-        placeholder="Mínimo 4 caracteres"
-      >
-    </div>
+    <script>
+        function crearCuenta() {
+            const u = document.getElementById("nu").value.toLowerCase().trim();
+            const p = document.getElementById("np").value.trim();
+            
+            if(!u || !p) {
+                alert("Error: El sistema requiere un nombre y un código de acceso.");
+                return;
+            }
 
-    <div class="input-group">
-      <label>ROL DEL OPERADOR</label>
+            if(u.length < 3) {
+                alert("El nombre de usuario debe tener al menos 3 caracteres.");
+                return;
+            }
 
-      <select id="reg-rol">
-        <option value="Estudiante">Estudiante</option>
-        <option value="Profesor">Profesor</option>
-        <option value="Invitado">Invitado</option>
-        <option value="Administrador">Administrador</option>
-      </select>
-    </div>
+            // 1. Obtener base de datos actual
+            let db = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
+            
+            // 2. Verificar si el usuario ya existe
+            if(db[u]) {
+                alert("Esta identidad ya existe en la base de datos central.");
+                return;
+            }
 
-    <button class="btn-save" onclick="guardarHeroe()">
-      REGISTRAR IDENTIDAD
-    </button>
+            // 3. Crear el objeto de usuario con la estructura completa
+            // IMPORTANTE: tutorialVisto en 'false' asegura que aparezca el manual al entrar
+            db[u] = {
+                contrasena: p,
+                rol: "estudiante",
+                puntos: 0,
+                progreso: { 
+                    intro: false, 
+                    prueba: false, 
+                    desafio: false, 
+                    nucleo: false 
+                },
+                logros: { 
+                    relic1: false, 
+                    relic2: false, 
+                    relic3: false 
+                },
+                descubrimientos: [],
+                tutorialVisto: false 
+            };
 
-    <a href="index.html" class="btn-back">
-      ← Volver al portal
-    </a>
+            // 4. Guardar en LocalStorage
+            localStorage.setItem("usuarios_registrados", JSON.stringify(db));
+            
+            // 5. Éxito y Redirección
+            alert("Identidad creada con éxito. Sincronización lista.");
+            window.location.href = "index.html";
+        }
 
-    <div id="msg"></div>
-
-  </div>
-
-  <script>
-
-    function mostrarMensaje(texto, tipo){
-
-      const msg = document.getElementById("msg");
-
-      msg.className = tipo;
-      msg.innerText = texto;
-    }
-
-    function guardarHeroe(){
-
-      const usuario = document
-        .getElementById("reg-user")
-        .value
-        .trim()
-        .toLowerCase();
-
-      const password = document
-        .getElementById("reg-pass")
-        .value
-        .trim();
-
-      const rol = document
-        .getElementById("reg-rol")
-        .value;
-
-      // VALIDACIONES
-
-      if(usuario.length < 3){
-        mostrarMensaje(
-          "El usuario debe tener mínimo 3 caracteres.",
-          "error"
-        );
-        return;
-      }
-
-      if(password.length < 4){
-        mostrarMensaje(
-          "La contraseña debe tener mínimo 4 caracteres.",
-          "error"
-        );
-        return;
-      }
-
-      // SOLO LETRAS Y NÚMEROS
-
-      const regex = /^[a-zA-Z0-9_]+$/;
-
-      if(!regex.test(usuario)){
-        mostrarMensaje(
-          "Solo se permiten letras, números y guiones bajos.",
-          "error"
-        );
-        return;
-      }
-
-      // BASE DE DATOS LOCAL
-
-      let usuarios = JSON.parse(
-        localStorage.getItem("usuarios_registrados")
-      ) || {};
-
-      // VALIDAR DUPLICADOS
-
-      if(usuarios[usuario]){
-
-        mostrarMensaje(
-          "Esa identidad ya existe.",
-          "error"
-        );
-
-        return;
-      }
-
-      // CREAR USUARIO
-
-      usuarios[usuario] = {
-
-        contrasena: password,
-        rol: rol,
-
-        creado: new Date().toLocaleString(),
-
-        progreso:{
-          intro:false,
-          desafio:false,
-          prueba:false,
-          nucleo:false
-        },
-
-        descubrimientos:[]
-      };
-
-      // GUARDAR
-
-      localStorage.setItem(
-        "usuarios_registrados",
-        JSON.stringify(usuarios)
-      );
-
-      mostrarMensaje(
-        "Identidad creada correctamente.",
-        "success"
-      );
-
-      // LIMPIAR CAMPOS
-
-      document.getElementById("reg-user").value = "";
-      document.getElementById("reg-pass").value = "";
-
-      // REDIRECCIÓN
-
-      setTimeout(() => {
-
-        window.location.href = "index.html";
-
-      }, 1800);
-    }
-
-  </script>
-
+        // Permitir registro al presionar Enter
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                crearCuenta();
+            }
+        });
+    </script>
 </body>
 </html>

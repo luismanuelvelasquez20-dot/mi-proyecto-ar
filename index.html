@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Portal de Acceso</title>
+
+  <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+    :root{
+      --cyan:#00f0ff;
+      --green:#00ffcc;
+      --danger:#ff0055;
+      --bg:#020208;
+      --panel:rgba(10,10,25,0.92);
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      padding:20px;
+      min-height:100vh;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      background:
+        radial-gradient(circle at top left, rgba(0,240,255,0.12), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(189,0,255,0.15), transparent 40%),
+        var(--bg);
+
+      color:white;
+      font-family:'Rajdhani',sans-serif;
+
+      overflow:hidden;
+    }
+
+    /* PARTÍCULAS */
+
+    #bgCanvas{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      z-index:-1;
+      opacity:0.5;
+    }
+
+    .login-container{
+
+      width:100%;
+      max-width:420px;
+
+      background:var(--panel);
+
+      border:2px solid var(--cyan);
+
+      border-radius:20px;
+
+      padding:40px;
+
+      box-shadow:
+        0 0 30px rgba(0,240,255,0.15),
+        inset 0 0 20px rgba(0,240,255,0.08);
+
+      backdrop-filter:blur(10px);
+
+      animation:fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn{
+      from{
+        opacity:0;
+        transform:translateY(20px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    h1{
+      text-align:center;
+      font-family:'Orbitron',sans-serif;
+      color:var(--cyan);
+      margin-bottom:30px;
+      letter-spacing:2px;
+      font-size:1.5rem;
+    }
+
+    .input-group{
+      margin-bottom:20px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+
+      color:var(--cyan);
+
+      font-family:'Orbitron';
+      font-size:0.8rem;
+
+      letter-spacing:1px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+
+      border-radius:10px;
+
+      border:1px solid rgba(0,240,255,0.3);
+
+      background:rgba(255,255,255,0.05);
+
+      color:white;
+
+      font-size:1rem;
+
+      outline:none;
+
+      transition:0.3s;
+    }
+
+    input:focus{
+      border-color:var(--cyan);
+      box-shadow:0 0 12px rgba(0,240,255,0.3);
+    }
+
+    .btn{
+
+      width:100%;
+
+      padding:15px;
+
+      border:none;
+
+      border-radius:10px;
+
+      font-family:'Orbitron';
+
+      font-weight:bold;
+
+      cursor:pointer;
+
+      transition:0.3s;
+
+      letter-spacing:1px;
+    }
+
+    .btn-login{
+      background:var(--cyan);
+      color:black;
+      margin-top:10px;
+    }
+
+    .btn-login:hover{
+      background:white;
+      box-shadow:0 0 20px var(--cyan);
+    }
+
+    .btn-register{
+      margin-top:15px;
+
+      background:transparent;
+
+      border:1px solid var(--green);
+
+      color:var(--green);
+    }
+
+    .btn-register:hover{
+      background:rgba(0,255,204,0.1);
+      box-shadow:0 0 15px rgba(0,255,204,0.3);
+    }
+
+    #alert-msg{
+      margin-top:20px;
+      text-align:center;
+      min-height:22px;
+      font-weight:bold;
+    }
+
+    .success{
+      color:var(--green);
+    }
+
+    .error{
+      color:var(--danger);
+    }
+
+    .shake{
+      animation:shake 0.3s;
+    }
+
+    @keyframes shake{
+      0%{ transform:translateX(0); }
+      25%{ transform:translateX(-6px); }
+      50%{ transform:translateX(6px); }
+      75%{ transform:translateX(-6px); }
+      100%{ transform:translateX(0); }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="login-container" id="loginBox">
+
+    <h1>PORTAL DE ACCESO</h1>
+
+    <div class="input-group">
+
+      <label>IDENTIDAD DEL OPERADOR</label>
+
+      <input
+        type="text"
+        id="username"
+        placeholder="Ingresa tu usuario"
+      >
+
+    </div>
+
+    <div class="input-group">
+
+      <label>CÓDIGO DE ENTRADA</label>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Ingresa tu contraseña"
+      >
+
+    </div>
+
+    <button class="btn btn-login" onclick="iniciarSesion()">
+      INICIAR SINCRONIZACIÓN
+    </button>
+
+    <button
+      class="btn btn-register"
+      onclick="window.location.href='registro.html'"
+    >
+      CREAR NUEVA IDENTIDAD
+    </button>
+
+    <div id="alert-msg"></div>
+
+  </div>
+
+  <script>
+
+    // LIMPIAR SESIÓN ANTERIOR
+
+    localStorage.removeItem("usuarioActivo");
+    localStorage.removeItem("rolActivo");
+
+    const inputUser = document.getElementById("username");
+    const inputPass = document.getElementById("password");
+
+    // ENTER PARA INGRESAR
+
+    document.addEventListener("keydown", (e)=>{
+
+      if(e.key === "Enter"){
+        iniciarSesion();
+      }
+
+    });
+
+    function mostrarMensaje(texto,tipo){
+
+      const alertMsg = document.getElementById("alert-msg");
+
+      alertMsg.className = tipo;
+      alertMsg.innerText = texto;
+    }
+
+    function sacudir(){
+
+      const box = document.getElementById("loginBox");
+
+      box.classList.add("shake");
+
+      setTimeout(()=>{
+
+        box.classList.remove("shake");
+
+      },300);
+    }
+
+    function iniciarSesion(){
+
+      const usuario = inputUser.value.trim().toLowerCase();
+
+      const password = inputPass.value.trim();
+
+      // VALIDACIÓN
+
+      if(!usuario || !password){
+
+        mostrarMensaje(
+          "Completa todos los campos.",
+          "error"
+        );
+
+        sacudir();
+
+        return;
+      }
+
+      // LEER BASE DE DATOS
+
+      const usuarios = JSON.parse(
+        localStorage.getItem("usuarios_registrados")
+      ) || {};
+
+      // VERIFICAR EXISTENCIA
+
+      if(
+        usuarios[usuario] &&
+        usuarios[usuario].contrasena === password
+      ){
+
+        // GUARDAR SESIÓN
+
+        localStorage.setItem(
+          "usuarioActivo",
+          usuario
+        );
+
+        localStorage.setItem(
+          "rolActivo",
+          usuarios[usuario].rol
+        );
+
+        mostrarMensaje(
+          "Sincronización exitosa...",
+          "success"
+        );
+
+        // REDIRECCIÓN
+
+        setTimeout(()=>{
+
+          window.location.href = "menu.html";
+
+        },1200);
+
+      }else{
+
+        mostrarMensaje(
+          "Identidad o código incorrecto.",
+          "error"
+        );
+
+        sacudir();
+      }
+    }
+
+  </script>
+
+  <script>
+
+    // PARTÍCULAS
+
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+
+    for(let i=0;i<70;i++){
+
+      particles.push({
+
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+
+        size:Math.random()*2,
+
+        speedY:Math.random()*0.6 + 0.2
+
+      });
+    }
+
+    function animate(){
+
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      ctx.fillStyle = "#00f0ff";
+
+      particles.forEach(p=>{
+
+        p.y -= p.speedY;
+
+        if(p.y < 0){
+
+          p.y = canvas.height;
+          p.x = Math.random()*canvas.width;
+        }
+
+        ctx.beginPath();
+
+        ctx.arc(
+          p.x,
+          p.y,
+          p.size,
+          0,
+          Math.PI*2
+        );
+
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // RESPONSIVE
+
+    window.addEventListener("resize",()=>{
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+    });
+
+  </script>
+
+</body>
+</html>

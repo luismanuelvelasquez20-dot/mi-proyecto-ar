@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal de Control - Restauradores</title>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
+        :root {
+            --cyan: #00f0ff;
+            --gold: #ffd700;
+            --magenta: #bd00ff;
+            --bg: #020208;
+            --panel: rgba(15, 15, 35, 0.95);
+            --border: rgba(0, 240, 255, 0.2);
+            --glow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        body {
+            margin: 0; padding: 20px; background: var(--bg); color: white;
+            font-family: 'Rajdhani', sans-serif; overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05), transparent 80%),
+                              linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            grid-template-rows: 90px 1fr 140px;
+            gap: 20px; height: 95vh; max-width: 1600px; margin: 0 auto;
+        }
+
+        .panel { 
+            background: var(--panel); border: 1px solid var(--border); padding: 15px; 
+            display: flex; flex-direction: column; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+        
+        /* ESTADO GRIS (BLOQUEADO) */
+        .locked { filter: grayscale(1); opacity: 0.3; pointer-events: none; }
+        .empty-text { color: #444; font-style: italic; text-align: center; margin-top: 50px; }
+
+        /* HEADER */
+        .top-bar { grid-column: 1 / 4; flex-direction: row; justify-content: space-between; align-items: center; }
+        .user-tag h1 { font-family: 'Orbitron'; margin: 0; color: var(--gold); font-size: 1.6rem; text-shadow: 0 0 10px var(--gold); }
+        .xp-value { font-size: 2.2rem; color: var(--cyan); font-weight: 900; font-family: 'Orbitron'; }
+
+        /* BITÁCORA - Espaciado de frases */
+        .log-container { grid-column: 1; grid-row: 2 / 4; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--cyan) transparent; }
+        .panel-header { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--cyan); border-bottom: 1px solid var(--border); margin-bottom: 15px; padding-bottom: 8px; letter-spacing: 2px; }
+        .log-entry { margin-bottom: 25px; padding: 15px; border-left: 3px solid var(--cyan); background: rgba(0, 240, 255, 0.03); font-size: 0.95rem; line-height: 1.6; animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* NIVELES */
+        .mission-grid { grid-column: 2; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; }
+        .card { border: 1px solid var(--border); padding: 10px; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; transition: 0.4s; }
+        .card:hover:not(.locked) { border-color: var(--cyan); box-shadow: var(--glow); background: rgba(0, 240, 255, 0.08); }
+        .card img { width: 100%; height: 110px; object-fit: cover; border: 1px solid var(--border); filter: brightness(0.6) sepia(0.3); }
+        .progress-mini { height: 3px; background: #111; margin: 8px 0; border-radius: 2px; }
+        .bar-fill { height: 100%; width: 0%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); transition: 1.5s; }
+
+        /* RELIQUIAS */
+        .relics-bar { grid-column: 2; grid-row: 3; display: flex; justify-content: space-around; align-items: center; flex-direction: row; }
+        .relic-slot { width: 80px; height: 80px; border: 1px dashed var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .relic-icon { width: 55px; filter: grayscale(1) contrast(0.5); opacity: 0.2; transition: 1.5s; }
+        .active-relic { filter: grayscale(0) contrast(1.1) drop-shadow(0 0 12px var(--gold)); opacity: 1; transform: scale(1.15); }
+
+        .btn-enter { margin-top: auto; background: none; border: 1px solid var(--cyan); color: var(--cyan); padding: 8px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.3s; }
+        .btn-enter:hover { background: var(--cyan); color: #000; }
+        
+        /* DERECHA */
+        .side-right { grid-column: 3; grid-row: 2 / 4; display: flex; flex-direction: column; gap: 20px; }
+        .nucleo-box { height: 180px; border: 2px solid var(--magenta); display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(189,0,255,0.1) 0%, transparent 70%); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="panel top-bar">
+        <div class="user-tag">
+            <small style="color: #666; letter-spacing: 3px;">RESTAURADOR ACTIVO</small>
+            <h1 id="userDisplay">IDENTIFICANDO...</h1>
+        </div>
+        <div style="text-align:right;">
+            <small>SABIDURÍA XP</small><br>
+            <span class="xp-value" id="points">0000</span>
+        </div>
+    </div>
+
+    <div class="panel log-container">
+        <div class="panel-header">BITÁCORA DE HALLAZGOS</div>
+        <div id="logContent">
+            </div>
+    </div>
+
+    <div class="mission-grid">
+        <div class="card" id="c1">
+            <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400">
+            <h3 style="margin:10px 0 5px; font-family:'Orbitron'; font-size:0.9rem;">OASIS NEÓN</h3>
+            <div class="progress-mini"><div id="f1" class="bar-fill"></div></div>
+            <button class="btn-enter" onclick="window.location.href='introduccion.html'">SINCRONIZAR</button>
+        </div>
+        <div class="card locked" id="c2">
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400">
+            <h3 style="margin:10px 0 5px; font-family:'Orbitron'; font-size:0.9rem;">ORÁCULO</h3>
+            <div class="progress-mini"><div id="f2" class="bar-fill"></div></div>
+            <button class="btn-enter" id="btn2" onclick="window.location.href='prueba.html'">BLOQUEADO</button>
+        </div>
+        <div class="card locked" id="c3">
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400">
+            <h3 style="margin:10px 0 5px; font-family:'Orbitron'; font-size:0.9rem;">LABERINTO</h3>
+            <div class="progress-mini"><div id="f3" class="bar-fill"></div></div>
+            <button class="btn-enter" id="btn3" onclick="window.location.href='desafio.html'">BLOQUEADO</button>
+        </div>
+        <div class="card" style="border-color:#444;">
+            <small style="color:#888;">PEDAGOGÍA</small>
+            <h3 style="margin:10px 0 5px; font-family:'Orbitron'; font-size:0.9rem; color:#fff;">REFLEXIÓN</h3>
+            <p style="font-size:0.8rem; color:#888; font-style:italic; border-left:2px solid var(--gold); padding-left:10px;">"El juego es la forma más elevada de investigación."</p>
+        </div>
+    </div>
+
+    <div class="panel relics-bar">
+        <div class="relic-slot"><img src="https://cdn-icons-png.flaticon.com/512/2353/2353361.png" id="r1" class="relic-icon"></div>
+        <div class="relic-slot"><img src="https://cdn-icons-png.flaticon.com/512/3035/3035061.png" id="r2" class="relic-icon"></div>
+        <div class="relic-slot"><img src="https://cdn-icons-png.flaticon.com/512/3655/3655610.png" id="r3" class="relic-icon"></div>
+    </div>
+
+    <div class="side-right">
+        <div class="panel" style="flex:1;">
+            <div class="panel-header">HERRAMIENTAS</div>
+            <button onclick="window.location.href='perfil.html'" class="btn-enter" style="width:100%; border-color:var(--gold); color:var(--gold); margin-bottom:15px;">PERFIL DEL HÉROE</button>
+            <button onclick="cerrarSesion()" class="btn-enter" style="width:100%; border-color:#ff0055; color:#ff0055;">DESCONECTAR SISTEMA</button>
+        </div>
+        <div class="panel nucleo-box locked" id="cNucleo">
+            <h2 style="font-family:'Orbitron'; color:var(--magenta); text-align:center; margin:0;">EL NÚCLEO</h2>
+            <img src="https://cdn-icons-png.flaticon.com/512/3593/3593450.png" style="width:50px; filter: hue-rotate(280deg); margin: 15px 0;">
+            <button class="btn-enter" id="btnNucleo" style="border-color:var(--magenta); color:var(--magenta);">ACCEDER</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        const user = localStorage.getItem("usuarioActivo");
+        const usuarios = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
+        const d = usuarios[user];
+
+        if(!d) return window.location.href="index.html";
+
+        document.getElementById("userDisplay").innerText = user.toUpperCase();
+        document.getElementById("points").innerText = (d.puntos || 0).toString().padStart(4, '0');
+
+        // Cargar Bitácora
+        const log = document.getElementById("logContent");
+        if(d.descubrimientos && d.descubrimientos.length > 0) {
+            log.innerHTML = d.descubrimientos.map(f => `<div class="log-entry"><strong style="color:var(--cyan); font-size:0.7rem;">[ENTRY_ID_${Math.floor(Math.random()*999)}]</strong><br>${f}</div>`).join('');
+        } else {
+            log.innerHTML = `<div class="empty-text">No se han detectado transmisiones...</div>`;
+        }
+
+        // Lógica de desbloqueo en cascada
+        if(d.progreso.intro) {
+            document.getElementById("f1").style.width = "100%";
+            document.getElementById("r1").classList.add("active-relic");
+            document.getElementById("c2").classList.remove("locked");
+            document.getElementById("btn2").innerText = "SINCRONIZAR";
+        }
+        if(d.progreso.prueba) {
+            document.getElementById("f2").style.width = "100%";
+            document.getElementById("r2").classList.add("active-relic");
+            document.getElementById("c3").classList.remove("locked");
+            document.getElementById("btn3").innerText = "SINCRONIZAR";
+        }
+        if(d.progreso.desafio) {
+            document.getElementById("f3").style.width = "100%";
+            document.getElementById("r3").classList.add("active-relic");
+            document.getElementById("cNucleo").classList.remove("locked");
+            document.getElementById("btnNucleo").onclick = () => window.location.href='nucleo.html';
+        }
+    };
+</script>
+</body>
+</html>

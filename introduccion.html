@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Nivel 1 - El Despertar del Restaurador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Rajdhani', sans-serif; }
+
+        /* BLOQUEADOR DE ROTACIÓN */
+        #orientation-blocker {
+            display: none; position: fixed; inset: 0; background: #0a0a15; z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
+        }
+        @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
+        /* HUD */
+        #hud-top {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            text-align: center; color: #ffd700; z-index: 100; pointer-events: none;
+        }
+        .mission-text { font-family: 'Orbitron'; font-size: 1rem; letter-spacing: 3px; text-shadow: 0 0 15px #ffd700; }
+
+        #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
+
+        /* PANEL DE CÓDIGO (ALTAR) */
+        #code-panel {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(5, 5, 15, 0.98); border: 2px solid #ffd700; padding: 25px;
+            border-radius: 15px; z-index: 500; text-align: center; color: white;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+        }
+        .code-display { font-family: 'Orbitron'; font-size: 2.2rem; color: #00f0ff; margin: 15px 0; letter-spacing: 8px; background: #000; padding: 10px; border-radius: 5px; }
+        .num-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .key { padding: 12px; background: #111; border: 1px solid #ffd700; color: white; cursor: pointer; font-family: 'Orbitron'; font-size: 1.2rem; }
+        .key:active { background: #ffd700; color: black; }
+
+        /* CARTEL DE INFORMACIÓN (HOLOGRÁFICO) */
+        #hologram-ui {
+            display: none; position: fixed; bottom: 30px; right: 30px; width: 300px;
+            background: rgba(0, 240, 255, 0.1); border: 2px solid #00f0ff; padding: 20px;
+            color: white; border-radius: 10px; backdrop-filter: blur(10px); z-index: 400;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="orientation-blocker">
+        <h2 style="font-family: 'Orbitron'; color:#ffd700;">GIRA EL DISPOSITIVO</h2>
+        <p>Modo panorámico necesario para la sincronización.</p>
+    </div>
+
+    <div id="hud-top">
+        <div class="mission-text">NIVEL 1: EL DESPERTAR</div>
+        <small id="dist-info" style="color: #00f0ff;">BUSCA LOS PILARES DE ORO</small>
+    </div>
+
+    <div id="joystick-zone"></div>
+
+    <div id="hologram-ui">
+        <strong id="holo-title" style="color:#00f0ff; font-family:'Orbitron'; font-size:1.1rem;">FRAGMENTO</strong><br>
+        <p id="holo-desc" style="margin: 10px 0; font-size: 0.95rem; line-height: 1.4;">---</p>
+        <div style="border-top: 1px solid #00f0ff; padding-top:10px; color:#ffd700; font-weight:bold;">
+            DÍGITO RECUPERADO: <span id="holo-digit" style="font-size:1.5rem;">?</span>
+        </div>
+    </div>
+
+    <div id="code-panel">
+        <h3 style="font-family:'Orbitron'; color:#ffd700; margin-top:0;">SECUENCIA DE ACCESO</h3>
+        <div class="code-display" id="display">---</div>
+        <div class="num-pad">
+            <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+            <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+            <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+            <div class="key" style="color:#ff0055" onclick="clearCode()">C</div><div class="key" onclick="press(0)">0</div>
+            <div class="key" style="color:#00ffcc" onclick="verifyCode()">OK</div>
+        </div>
+    </div>
+
+    <a-scene fog="type: exponential; color: #050510; density: 0.04" vr-mode-ui="enabled: false">
+        
+        <a-sky color="#020205"></a-sky>
+        
+        <a-light type="ambient" intensity="0.3" color="#fff"></a-light>
+        <a-light type="directional" intensity="0.8" position="-1 5 2" color="#ffd700"></a-light>
+        <a-light type="point" position="0 5 -5" intensity="1.5" color="#00f0ff" distance="20"></a-light>
+
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#cccccc" material="metalness: 0.8; roughness: 0.2"></a-plane>
+
+        <a-entity id="pilar1" position="-8 0 -12">
+            <a-box width="1.2" height="6" depth="1.2" color="#111" material="metalness:1; roughness:0.2"></a-box>
+            <a-box width="1.3" height="0.5" position="0 3 0" color="#ffd700" material="emissive:#ffd700; emissiveIntensity:1"></a-box>
+            <a-light type="point" color="#ffd700" intensity="0.8" distance="5"></a-light>
+            <a-ring radius-inner="0.3" radius-outer="0.35" position="0 1.8 0.61" color="#00f0ff" material="emissive:#00f0ff; emissiveIntensity:0.8"></a-ring>
+            <a-triangle vertex-a="0 0.15 0" vertex-b="-0.15 -0.1 0" vertex-c="0.15 -0.1 0" position="0 1.8 0.61" color="#00f0ff" material="emissive:#00f0ff; emissiveIntensity:1"></a-triangle>
+        </a-entity>
+
+        <a-entity id="pilar2" position="8 0 -12">
+            <a-box width="1.2" height="6" depth="1.2" color="#111" material="metalness:1; roughness:0.2"></a-box>
+            <a-box width="1.3" height="0.5" position="0 3 0" color="#ffd700" material="emissive:#ffd700; emissiveIntensity:1"></a-box>
+            <a-light type="point" color="#ffd700" intensity="0.8" distance="5"></a-light>
+            <a-plane width="0.5" height="0.5" rotation="0 0 45" position="0 1.8 0.61" color="#bd00ff" material="emissive:#bd00ff; emissiveIntensity:0.7"></a-plane>
+            <a-plane width="0.25" height="0.25" position="0 1.8 0.62" color="#ffd700" material="emissive:#ffd700; emissiveIntensity:1"></a-plane>
+        </a-entity>
+
+        <a-entity id="pilar3" position="0 0 -22">
+            <a-box width="1.2" height="6" depth="1.2" color="#111" material="metalness:1; roughness:0.2"></a-box>
+            <a-box width="1.3" height="0.5" position="0 3 0" color="#ffd700" material="emissive:#ffd700; emissiveIntensity:1"></a-box>
+            <a-light type="point" color="#ffd700" intensity="0.8" distance="5"></a-light>
+            <a-circle radius="0.35" position="0 1.8 0.61" color="#ffd700" material="wireframe:true; emissive:#ffd700; emissiveIntensity:0.5"></a-circle>
+            <a-ring radius-inner="0.1" radius-outer="0.15" position="0 1.8 0.61" color="#00f0ff" material="emissive:#00f0ff; emissiveIntensity:1"></a-ring>
+        </a-entity>
+
+        <a-entity id="altar" position="0 0 -5">
+            <a-cylinder radius="2" height="0.4" color="#222" material="metalness:1; roughness:0.1"></a-cylinder>
+            <a-box id="cofre" width="1.2" height="0.8" depth="0.8" position="0 0.6 0" color="#8b6508" material="metalness:1; roughness:0.05">
+                <a-box width="1.25" height="0.1" depth="0.85" position="0 0.45 0" color="#ffd700" id="tapa-cofre"
+                       animation="property: rotation; to: -100 0 0; dur: 1500; startEvents: open"></a-box>
+            </a-box>
+            
+            <a-entity id="reliquia_master" visible="false" position="0 0.6 0">
+                <a-octahedron id="relic-obj" radius="0.5" color="#00f0ff" material="opacity:0.9; transparent:true; metalness:1" 
+                              animation="property: rotation; to: 0 1080 0; loop: true; dur: 3000"></a-octahedron>
+                <a-light id="relic-light" type="point" color="#00f0ff" intensity="0" distance="15"></a-light>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="rig" position="0 0 5">
+            <a-camera id="camera" look-controls="pointerLockEnabled: false"></a-camera>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        if(!localStorage.getItem("usuarioActivo")) window.location.href="index.html";
+
+        const manager = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static', position: {left: '60px', bottom: '60px'},
+            color: '#ffd700', size: 100
+        });
+
+        const rig = document.getElementById('rig');
+        const camera = document.getElementById('camera');
+        let moveX = 0, moveZ = 0;
+
+        manager.on('move', (evt, data) => {
+            const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
+            const fwd = data.vector.y;
+            const side = data.vector.x;
+            moveX = (side * Math.cos(rotY) - fwd * Math.sin(rotY)) * 0.12;
+            moveZ = (-side * Math.sin(rotY) - fwd * Math.cos(rotY)) * 0.12;
+        });
+        manager.on('end', () => { moveX = 0; moveZ = 0; });
+
+        const pilares = [
+            { id: "pilar1", x: -8, z: -12, titulo: "EL ASOMBRO", desc: "La Realidad Aumentada sobrepone capas de luz al mundo físico para revelar lo invisible.", digito: "7" },
+            { id: "pilar2", x: 8, z: -12, titulo: "EL JUEGO", desc: "Aprender es una aventura; cuando hay retos y recompensas, el cerebro brilla con más fuerza.", digito: "3" },
+            { id: "pilar3", x: 0, z: -22, titulo: "LA MISIÓN", desc: "Como Restaurador, tu deber es unir la tecnología y la curiosidad para salvar el conocimiento.", digito: "1" }
+        ];
+
+        let currentInput = "";
+        let relicObtained = false;
+
+        function press(n) {
+            if(currentInput.length < 3) currentInput += n;
+            document.getElementById("display").innerText = currentInput;
+        }
+        function clearCode() { currentInput = ""; document.getElementById("display").innerText = "---"; }
+
+        function verifyCode() {
+            if(currentInput === "731" && !relicObtained) {
+                relicObtained = true;
+                document.getElementById("code-panel").style.display = "none";
+                animarGranFinal();
+            } else {
+                document.getElementById("display").style.color = "red";
+                setTimeout(clearCode, 800);
+            }
+        }
+
+        function animarGranFinal() {
+            document.getElementById("tapa-cofre").emit("open");
+            const rel = document.getElementById("reliquia_master");
+            rel.setAttribute("visible", "true");
+            rel.setAttribute("animation", "property: position; to: 0 3 0; dur: 2500; easing: easeOutElastic");
+            document.getElementById("relic-light").setAttribute("animation", "property: intensity; to: 5; dur: 2000");
+
+            setTimeout(() => {
+                if(typeof registrarAvanceGlobal === "function") {
+                    registrarAvanceGlobal("intro", "relic1", 500, "Nivel 1: Sincronización completa. El Restaurador ha despertado la Reliquia de la Intuición.");
+                }
+                alert("¡RELIQUIA SINCRONIZADA! Volviendo al Centro de Mando...");
+                window.location.href = "menu.html";
+            }, 3500);
+        }
+
+        function gameLoop() {
+            const pos = rig.getAttribute('position');
+            pos.x += moveX; pos.z += moveZ;
+            rig.setAttribute('position', pos);
+
+            const holoUI = document.getElementById("hologram-ui");
+            let nearAny = false;
+
+            pilares.forEach(p => {
+                const dist = Math.hypot(pos.x - p.x, pos.z - p.z);
+                if(dist < 3.5) {
+                    document.getElementById("holo-title").innerText = p.titulo;
+                    document.getElementById("holo-desc").innerText = p.desc;
+                    document.getElementById("holo-digit").innerText = p.digito;
+                    holoUI.style.display = "block";
+                    nearAny = true;
+                }
+            });
+
+            if(!nearAny) holoUI.style.display = "none";
+
+            const distAltar = Math.hypot(pos.x, pos.z + 5);
+            document.getElementById("code-panel").style.display = (distAltar < 2.5 && !relicObtained) ? "block" : "none";
+
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>

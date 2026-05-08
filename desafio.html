@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Nivel 3 - El Laberinto de la Estructura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Rajdhani', sans-serif; }
+
+        /* BLOQUEADOR DE ROTACIÓN */
+        #orientation-blocker {
+            display: none; position: fixed; inset: 0; background: #05010a; z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
+        }
+        @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
+        /* HUD */
+        #btn-menu {
+            position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px; border: 1px solid #bd00ff;
+            border-radius: 8px; background: rgba(189, 0, 255, 0.1); color: #bd00ff; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
+        }
+        #btn-menu:hover { background: #bd00ff; color: #fff; box-shadow: 0 0 15px #bd00ff; }
+
+        #hud-top {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            text-align: center; color: #bd00ff; z-index: 100; pointer-events: none;
+        }
+
+        #joystick-zone { position: fixed; bottom: 30px; left: 30px; width: 130px; height: 130px; z-index: 100; }
+
+        /* TOAST DE NOTIFICACIÓN */
+        #toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 5, 20, 0.95); border: 2px solid #bd00ff; color: white;
+            padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(189, 0, 255, 0.4);
+            z-index: 200; transition: bottom 0.5s; text-align: center; width: 80%; max-width: 600px;
+        }
+
+        /* PANTALLA DE VICTORIA */
+        #victory-screen {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        #victory-screen h1 { font-family: 'Orbitron'; color: #00f0ff; text-shadow: 0 0 30px #00f0ff; font-size: 3rem; margin-bottom: 10px;}
+    </style>
+</head>
+<body>
+
+    <div id="orientation-blocker">
+        <h2 style="font-family: 'Orbitron'; color:#bd00ff;">GIRA TU DISPOSITIVO</h2>
+        <p>El laberinto requiere toda tu visión periférica.</p>
+    </div>
+
+    <div id="hud-top">
+        <h3 style="font-family:'Orbitron'; margin:0; letter-spacing: 2px; text-shadow: 0 0 10px #bd00ff;">SECTOR 03: EL LABERINTO</h3>
+        <small style="color:#aaa;">Encuentra el camino en la oscuridad</small>
+    </div>
+
+    <button id="btn-menu" onclick="window.location.href='menu.html'">ABANDONAR</button>
+    <div id="joystick-zone"></div>
+
+    <div id="toast">
+        <strong style="color:#bd00ff; font-family:'Orbitron';">¡SECRETO REVELADO! (+200 XP)</strong><br>
+        <span id="toast-msg">Frase...</span>
+    </div>
+
+    <div id="victory-screen">
+        <h1>✨ RELIQUIA DE LA ESTRUCTURA ✨</h1>
+        <p style="font-size: 1.2rem; color: #ccc; max-width: 600px;">Has dominado la arquitectura de la Gamificación.<br>El NÚCLEO te espera.</p>
+        <button style="margin-top:30px; padding:15px 40px; font-family:'Orbitron'; font-weight:bold; background:transparent; color:#00f0ff; border: 2px solid #00f0ff; border-radius:8px; cursor:pointer;" onclick="window.location.href='menu.html'">VOLVER AL PORTAL</button>
+    </div>
+
+    <a-scene fog="type: exponential; color: #030008; density: 0.12" vr-mode-ui="enabled: false">
+        
+        <a-sky color="#010003"></a-sky>
+
+        <a-light type="ambient" intensity="0.1" color="#bd00ff"></a-light>
+
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#0a0a0f" material="metalness: 0.9; roughness: 0.3; src: url(https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=500); repeat: 20 20;"></a-plane>
+
+        <a-entity id="maze-walls"></a-entity>
+
+        <a-entity id="frases-container">
+            <a-sphere class="frase-orbe" position="-3.5 1.5 -8" radius="0.3" color="#bd00ff" material="emissive: #bd00ff; emissiveIntensity: 2;" data-texto="Un laberinto no está diseñado para perderte, sino para que descubras de qué estás hecho."></a-sphere>
+            <a-sphere class="frase-orbe" position="3.5 1.5 -18" radius="0.3" color="#bd00ff" material="emissive: #bd00ff; emissiveIntensity: 2;" data-texto="La estructura de un juego define cómo interactuamos con el conocimiento."></a-sphere>
+            <a-light type="point" position="-3.5 1.5 -8" color="#bd00ff" intensity="1" distance="5"></a-light>
+            <a-light type="point" position="3.5 1.5 -18" color="#bd00ff" intensity="1" distance="5"></a-light>
+        </a-entity>
+
+        <a-entity position="0 0 -35">
+            <a-circle radius="3" rotation="-90 0 0" position="0 0.05 0" color="#00f0ff" material="wireframe: true; emissive: #00f0ff; emissiveIntensity: 1"></a-circle>
+            
+            <a-entity id="la-reliquia" position="0 2 0" animation="property: position; dir: alternate; dur: 2000; loop: true; to: 0 2.5 0">
+                <a-icosahedron radius="1" color="#ffd700" material="wireframe: true; emissive: #ffd700; emissiveIntensity: 0.5" animation="property: rotation; to: 360 360 0; loop: true; dur: 10000"></a-icosahedron>
+                <a-box width="0.6" height="0.6" depth="0.6" color="#00f0ff" material="metalness: 1; roughness: 0.1; emissive: #0088ff" animation="property: rotation; to: -360 -360 0; loop: true; dur: 6000"></a-box>
+                <a-light id="relic-glow" type="point" color="#00f0ff" intensity="2" distance="15"></a-light>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="rig" position="0 0 0">
+            <a-camera id="camera" look-controls="pointerLockEnabled: false">
+                <a-light type="spot" color="#ffffff" intensity="2" distance="20" angle="35" penumbra="0.5" position="0 0 0" rotation="0 0 0"></a-light>
+            </a-camera>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        // 1. SEGURIDAD DE SESIÓN
+        if(!localStorage.getItem("usuarioActivo")) window.location.href="index.html";
+
+        // 2. CONFIGURACIÓN DEL JOYSTICK
+        const manager = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static', position: { left: '70px', bottom: '70px' },
+            color: '#bd00ff', size: 110
+        });
+
+        const rig = document.getElementById('rig');
+        const camera = document.getElementById('camera');
+        let moveX = 0, moveZ = 0;
+        const speed = 0.12;
+        const playerRadius = 0.4; // Para colisiones
+
+        manager.on('move', (evt, data) => {
+            if(!data.vector) return;
+            const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
+            const fwd = data.vector.y;
+            const side = data.vector.x;
+            moveX = (side * Math.cos(rotY) - fwd * Math.sin(rotY)) * speed;
+            moveZ = (-side * Math.sin(rotY) - fwd * Math.cos(rotY)) * speed;
+        });
+
+        manager.on('end', () => { moveX = 0; moveZ = 0; });
+
+        // 3. MAPA DEL LABERINTO Y COLISIONES
+        // Creamos los muros por coordenadas (x, z, ancho, profundidad)
+        const paredes = [
+            { x: 0, z: 2, w: 12, d: 1 },    // Muro trasero inicial
+            { x: -5, z: -17, w: 1, d: 38 }, // Muro lateral izquierdo
+            { x: 5, z: -17, w: 1, d: 38 },  // Muro lateral derecho
+            { x: 2, z: -5, w: 7, d: 1 },    // Bloqueo 1 (Deja hueco a la izquierda)
+            { x: -2, z: -12, w: 7, d: 1 },  // Bloqueo 2 (Deja hueco a la derecha)
+            { x: 2, z: -19, w: 7, d: 1 },   // Bloqueo 3 (Deja hueco a la izquierda)
+            { x: -2, z: -26, w: 7, d: 1 }   // Bloqueo 4 (Deja hueco a la derecha)
+        ];
+
+        // Renderizar Muros en el DOM
+        const mazeContainer = document.getElementById("maze-walls");
+        paredes.forEach(p => {
+            const muro = document.createElement("a-box");
+            muro.setAttribute("position", `${p.x} 2.5 ${p.z}`);
+            muro.setAttribute("width", p.w);
+            muro.setAttribute("height", 5);
+            muro.setAttribute("depth", p.d);
+            muro.setAttribute("color", "#050505");
+            muro.setAttribute("material", "metalness: 0.9; roughness: 0.6; src: url(https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=500); repeat: 5 2");
+            
+            // Tira de neón en cada muro para guiar un poco
+            const neon = document.createElement("a-box");
+            neon.setAttribute("position", `0 -2 0.51`); // Pegado a la base
+            neon.setAttribute("width", p.w);
+            neon.setAttribute("height", 0.1);
+            neon.setAttribute("depth", 0.05);
+            neon.setAttribute("color", "#bd00ff");
+            neon.setAttribute("material", "emissive: #bd00ff; emissiveIntensity: 1");
+            muro.appendChild(neon);
+
+            mazeContainer.appendChild(muro);
+        });
+
+        // Función de colisión (AABB - Axis-Aligned Bounding Box)
+        function chocaConPared(newX, newZ) {
+            for (let p of paredes) {
+                const minX = p.x - (p.w / 2) - playerRadius;
+                const maxX = p.x + (p.w / 2) + playerRadius;
+                const minZ = p.z - (p.d / 2) - playerRadius;
+                const maxZ = p.z + (p.d / 2) + playerRadius;
+
+                if (newX > minX && newX < maxX && newZ > minZ && newZ < maxZ) {
+                    return true; // Hay colisión
+                }
+            }
+            return false;
+        }
+
+        // 4. LÓGICA PRINCIPAL (Game Loop)
+        const orbes = document.querySelectorAll('.frase-orbe');
+        let reliquiaRecogida = false;
+
+        function gameLoop() {
+            // Movimiento con Colisiones
+            if(moveX !== 0 || moveZ !== 0) {
+                const pos = rig.getAttribute('position');
+                const nextX = pos.x + moveX;
+                const nextZ = pos.z + moveZ;
+
+                // Intentamos mover en X
+                if (!chocaConPared(nextX, pos.z)) { pos.x = nextX; }
+                // Intentamos mover en Z
+                if (!chocaConPared(pos.x, nextZ)) { pos.z = nextZ; }
+
+                rig.setAttribute('position', pos);
+            }
+
+            const currentPos = rig.getAttribute('position');
+
+            // Orbes
+            orbes.forEach(orbe => {
+                if(orbe.getAttribute('visible') === false) return;
+                const oPos = orbe.getAttribute('position');
+                if(Math.hypot(currentPos.x - oPos.x, currentPos.z - oPos.z) < 2) {
+                    const texto = orbe.getAttribute('data-texto');
+                    orbe.setAttribute('visible', false);
+                    mostrarToast(texto);
+                    if (typeof registrarAvanceGlobal === "function") {
+                        registrarAvanceGlobal(null, null, 200, texto);
+                    }
+                }
+            });
+
+            // Reliquia Final
+            if(!reliquiaRecogida) {
+                const distReliquia = Math.hypot(currentPos.x - 0, currentPos.z - (-35));
+                if(distReliquia < 3) {
+                    reliquiaRecogida = true;
+                    animacionVictoria();
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+
+        // 5. FUNCIONES DE UI
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toast-msg").innerText = mensaje;
+            toast.style.bottom = "30px";
+            setTimeout(() => { toast.style.bottom = "-150px"; }, 6000);
+        }
+
+        function animacionVictoria() {
+            // Explosión Visual de la Reliquia
+            document.getElementById("relic-glow").setAttribute("animation", "property: intensity; to: 10; dur: 1000");
+            document.querySelector("a-icosahedron").setAttribute("animation__speed", "property: rotation; to: 0 2000 0; dur: 2000");
+            
+            setTimeout(() => {
+                document.getElementById("victory-screen").style.display = "flex";
+                
+                // GUARDADO MAESTRO (Desbloquea el Núcleo)
+                if (typeof registrarAvanceGlobal === "function") {
+                    registrarAvanceGlobal(
+                        "desafio", 
+                        "relic3", 
+                        1500, 
+                        "Nivel 3: El Restaurador ha descifrado el Laberinto y recuperado la Reliquia de la Estructura."
+                    );
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

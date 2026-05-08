@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Héroe - Restauradores</title>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        :root { --cyan: #00f0ff; --gold: #ffd700; --danger: #ff0055; --bg: #020208; }
+
+        body {
+            margin: 0; padding: 20px; background: var(--bg); color: white;
+            font-family: 'Rajdhani', sans-serif; display: flex; justify-content: center;
+        }
+
+        .perfil-container {
+            width: 100%; max-width: 600px; background: rgba(15, 15, 35, 0.95);
+            border: 1px solid var(--cyan); border-radius: 8px; padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .header-perfil { text-align: center; border-bottom: 1px solid var(--cyan); padding-bottom: 20px; margin-bottom: 20px; }
+        .header-perfil h1 { font-family: 'Orbitron'; color: var(--gold); margin: 0 0 10px 0; font-size: 2.5rem; text-shadow: 0 0 10px var(--gold); }
+        .puntos-box { font-size: 1.2rem; }
+        .puntos-box span { color: var(--cyan); font-family: 'Orbitron'; font-size: 2.5rem; font-weight: bold; }
+
+        .relics-grid { display: flex; justify-content: space-around; margin-bottom: 30px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 8px; }
+        .relic-item img { width: 60px; filter: grayscale(1); opacity: 0.2; transition: 0.5s; }
+        .relic-item:not(.locked) img { filter: grayscale(0) drop-shadow(0 0 10px var(--gold)); opacity: 1; transform: scale(1.1); }
+
+        .bitacora { background: rgba(0, 240, 255, 0.05); padding: 20px; border-left: 3px solid var(--cyan); margin-bottom: 30px; }
+        .bitacora h3 { font-family: 'Orbitron'; color: var(--cyan); margin-top: 0; }
+        .mensaje-item { margin-bottom: 15px; font-size: 0.95rem; line-height: 1.5; color: #ddd; }
+
+        .btn-group { display: flex; gap: 15px; }
+        button { flex: 1; padding: 15px; font-family: 'Orbitron'; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-back { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); }
+        .btn-back:hover { background: var(--cyan); color: #000; }
+        .btn-danger { background: rgba(255, 0, 85, 0.1); border: 1px solid var(--danger); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="perfil-container">
+    <div class="header-perfil">
+        <h1 id="userTag">USUARIO</h1>
+        <div class="puntos-box">PUNTOS XP <br><span id="puntosDisplay">0000</span></div>
+    </div>
+
+    <div class="relics-grid">
+        <div id="perfil-relic1" class="relic-item locked"><img src="https://cdn-icons-png.flaticon.com/512/2353/2353361.png"></div>
+        <div id="perfil-relic2" class="relic-item locked"><img src="https://cdn-icons-png.flaticon.com/512/3035/3035061.png"></div>
+        <div id="perfil-relic3" class="relic-item locked"><img src="https://cdn-icons-png.flaticon.com/512/3655/3655610.png"></div>
+    </div>
+
+    <div class="bitacora">
+        <h3>REGISTROS DE MEMORIA</h3>
+        <div id="listaDescubrimientos"></div>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="window.location.href='menu.html'" class="btn-back">VOLVER AL PORTAL</button>
+        <button onclick="reiniciarTodoElProgreso()" class="btn-danger">FORMATEAR MEMORIA</button>
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        const user = localStorage.getItem("usuarioActivo");
+        const usuarios = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
+        const d = usuarios[user];
+
+        if(!d) { window.location.href = "index.html"; return; }
+
+        // Mostrar Usuario y Puntos
+        document.getElementById("userTag").innerText = user.toUpperCase();
+        document.getElementById("puntosDisplay").innerText = (d.puntos || 0).toString().padStart(4, '0');
+
+        // Llenar Bitácora
+        const lista = document.getElementById("listaDescubrimientos");
+        if(d.descubrimientos && d.descubrimientos.length > 0) {
+            lista.innerHTML = d.descubrimientos.map(m => `<div class="mensaje-item">• ${m}</div>`).join('');
+        } else {
+            lista.innerHTML = "<p style='color:#666; font-style:italic;'>No hay memorias almacenadas.</p>";
+        }
+
+        // Iluminar Reliquias
+        if(d.logros.relic1) document.getElementById("perfil-relic1").classList.remove("locked");
+        if(d.logros.relic2) document.getElementById("perfil-relic2").classList.remove("locked");
+        if(d.logros.relic3) document.getElementById("perfil-relic3").classList.remove("locked");
+    };
+</script>
+</body>
+</html>

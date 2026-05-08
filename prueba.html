@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Nivel 2 - El Valle de la Gamificación (Luz Reforzada)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+    
+    <script src="data.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Rajdhani', sans-serif; }
+
+        /* BLOQUEADOR DE ROTACIÓN */
+        #orientation-blocker {
+            display: none; position: fixed; inset: 0; background: #050510; z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
+        }
+        @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
+        /* HUD */
+        #btn-menu {
+            position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px; border: 1px solid #00f0ff;
+            border-radius: 8px; background: rgba(0, 240, 255, 0.1); color: #00f0ff; font-family: 'Orbitron'; cursor: pointer;
+        }
+
+        #joystick-zone { position: fixed; bottom: 30px; left: 30px; width: 130px; height: 130px; z-index: 100; }
+
+        #toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(10, 10, 30, 0.95); border: 2px solid #00f0ff; color: white;
+            padding: 15px 30px; border-radius: 10px; font-size: 1.1rem; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            z-index: 200; transition: bottom 0.5s; text-align: center; width: 80%; max-width: 600px;
+        }
+
+        #victory-screen {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        #victory-screen h1 { font-family: 'Orbitron'; color: #ffd700; text-shadow: 0 0 20px #ffd700; }
+    </style>
+</head>
+<body>
+
+    <div id="orientation-blocker">
+        <h2 style="font-family: 'Orbitron'; color:#00f0ff;">ROTA TU DISPOSITIVO</h2>
+        <p>Visión panorámica requerida para la exploración.</p>
+    </div>
+
+    <button id="btn-menu" onclick="window.location.href='menu.html'">⬅ ABANDONAR</button>
+    <div id="joystick-zone"></div>
+
+    <div id="toast">
+        <strong style="color:#00f0ff; font-family:'Orbitron';">¡DATOS RECUPERADOS!</strong><br>
+        <span id="toast-msg">Frase...</span>
+    </div>
+
+    <div id="victory-screen">
+        <h1>✨ RELIQUIA DE INTERACCIÓN ✨</h1>
+        <p>Exploración inmersiva completada con éxito.</p>
+        <button style="padding:15px; font-family:'Orbitron'; background:#ffd700; border:none; border-radius:8px; cursor:pointer;" onclick="window.location.href='menu.html'">VOLVER AL PORTAL</button>
+    </div>
+
+    <a-scene fog="type: exponential; color: #1a1a2e; density: 0.04" vr-mode-ui="enabled: false">
+        
+        <a-sky color="#0a0a20"></a-sky>
+
+        <a-light type="ambient" intensity="0.5" color="#fff"></a-light>
+        <a-light type="directional" intensity="0.7" position="-1 4 2" color="#00f0ff"></a-light>
+        <a-light type="point" position="0 6 0" intensity="1.2" distance="25" color="#ffffff"></a-light>
+
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#d1d5db" material="metalness: 0.6; roughness: 0.2"></a-plane>
+
+        <a-entity id="entorno">
+            <a-box position="-5 3 -8" width="2" height="15" depth="2" color="#1a1a2e" material="metalness: 0.8; roughness: 0.3"></a-box>
+            <a-box position="6 4 -12" width="3" height="20" depth="3" color="#1a1a2e" material="metalness: 0.8; roughness: 0.3"></a-box>
+            <a-box position="-8 2 -18" width="4" height="10" depth="4" color="#1a1a2e" material="metalness: 0.8; roughness: 0.3"></a-box>
+            <a-box position="8 5 -25" width="2" height="18" depth="2" color="#1a1a2e" material="metalness: 0.8; roughness: 0.3"></a-box>
+        </a-entity>
+
+        <a-entity id="frases-container">
+            <a-sphere class="frase-orbe" position="-6 1.8 -12" radius="0.5" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 2;" data-texto="La Realidad Aumentada sobrepone capas de información al mundo físico."></a-sphere>
+            <a-sphere class="frase-orbe" position="5 1.8 -20" radius="0.5" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 2;" data-texto="La Gamificación transforma tareas en misiones mediante recompensas y retos."></a-sphere>
+            <a-sphere class="frase-orbe" position="-7 1.8 -26" radius="0.5" color="#00f0ff" material="emissive: #00f0ff; emissiveIntensity: 2;" data-texto="El aprendizaje inmersivo coloca al estudiante como el héroe de su propia historia."></a-sphere>
+        </a-entity>
+
+        <a-entity position="0 0 -35">
+            <a-cylinder position="0 0.5 0" radius="2" height="0.8" color="#333" material="metalness: 1;"></a-cylinder>
+            <a-entity id="la-reliquia" position="0 2.5 0">
+                <a-sphere radius="0.8" color="#bd00ff" material="opacity: 0.4; transparent: true;"></a-sphere>
+                <a-torus-knot radius="0.4" radius-tubular="0.05" color="#ffd700" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"></a-torus-knot>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls="pointerLockEnabled: false"></a-camera>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        if(!localStorage.getItem("usuarioActivo")) window.location.href="index.html";
+
+        const manager = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static', position: { left: '65px', bottom: '65px' },
+            color: '#00f0ff', size: 100
+        });
+
+        const rig = document.getElementById('rig');
+        const camera = document.querySelector('a-camera');
+        let moveX = 0, moveZ = 0;
+        const speed = 0.15;
+
+        manager.on('move', (evt, data) => {
+            const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
+            const fwd = data.vector.y;
+            const side = data.vector.x;
+            moveX = (side * Math.cos(rotY) - fwd * Math.sin(rotY)) * speed;
+            moveZ = (-side * Math.sin(rotY) - fwd * Math.cos(rotY)) * speed;
+        });
+
+        manager.on('end', () => { moveX = 0; moveZ = 0; });
+
+        function gameLoop() {
+            const pos = rig.getAttribute('position');
+            pos.x += moveX; pos.z += moveZ;
+            rig.setAttribute('position', pos);
+
+            document.querySelectorAll('.frase-orbe').forEach(orbe => {
+                if(orbe.getAttribute('visible') === false) return;
+                const oPos = orbe.getAttribute('position');
+                if(Math.hypot(pos.x - oPos.x, pos.z - oPos.z) < 2.5) {
+                    const texto = orbe.getAttribute('data-texto');
+                    orbe.setAttribute('visible', false);
+                    mostrarToast(texto);
+                    registrarAvanceGlobal(null, null, 150, texto);
+                }
+            });
+
+            if(Math.hypot(pos.x, pos.z + 35) < 3) {
+                document.getElementById("victory-screen").style.display = "flex";
+                registrarAvanceGlobal("prueba", "relic2", 1000, "¡Nivel 2 Superado! Dominio de la RA.");
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function mostrarToast(m) {
+            document.getElementById("toast-msg").innerText = m;
+            document.getElementById("toast").style.bottom = "30px";
+            setTimeout(() => { document.getElementById("toast").style.bottom = "-150px"; }, 5000);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

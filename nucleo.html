@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Fase Final - El Núcleo del Aprendizaje</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+  
+  <script src="data.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+    html, body {
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #020105;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    #orientation-blocker {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #05020a;
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #orientation-blocker .icon {
+      font-size: 4rem;
+      animation: rotatePhone 2s infinite ease-in-out;
+      margin-bottom: 20px;
+    }
+
+    #orientation-blocker h2 {
+      font-family: 'Orbitron', sans-serif;
+      color: #00f0ff;
+      text-shadow: 0 0 10px #00f0ff;
+      margin: 10px 0;
+    }
+
+    @keyframes rotatePhone {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(-90deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @media (orientation: portrait) {
+      #orientation-blocker {
+        display: flex;
+      }
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 10;
+      font-family: 'Orbitron', monospace;
+      color: #00f0ff;
+      text-shadow: 0 0 5px #00f0ff;
+      pointer-events: none;
+      font-size: 0.85rem;
+    }
+
+    #gameMsg {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4, 2, 10, 0.95);
+      border: 2px solid #00f0ff;
+      border-radius: 8px;
+      padding: 12px 24px;
+      color: #fff;
+      font-size: 0.9rem;
+      text-align: center;
+      z-index: 10;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+      max-width: 70%;
+      pointer-events: none;
+    }
+
+    #joystick-zone {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 120px;
+      height: 120px;
+      z-index: 9999;
+      background: rgba(0, 240, 255, 0.05);
+      border: 2px dashed rgba(0, 240, 255, 0.3);
+      border-radius: 50%;
+      touch-action: none;
+    }
+
+    .scroll-ui {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 85%;
+      max-width: 500px;
+      background: #0a0518;
+      border: 4px solid #00f0ff;
+      border-radius: 15px;
+      box-shadow: 0 0 40px #00f0ff;
+      padding: 30px 20px;
+      z-index: 500;
+      text-align: center;
+      color: #fff;
+      animation: scaleUp 0.5s ease-out;
+    }
+
+    @keyframes scaleUp {
+      from {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .scroll-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffd700;
+      margin-bottom: 20px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .scroll-content {
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 25px;
+    }
+
+    .scroll-btn {
+      background: linear-gradient(135deg, #00f0ff, #bd00ff);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Orbitron';
+      box-shadow: 0 0 20px rgba(0,240,255,0.5);
+      transition: 0.3s;
+    }
+
+    .scroll-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="orientation-blocker">
+  <div class="icon">🔄</div>
+  <h2>MODO HORIZONTAL REQUERIDO</h2>
+  <p>Gira tu dispositivo para restaurar el Núcleo.</p>
+</div>
+
+<div class="hud-overlay">
+  <div>// TEMPLO DEL NÚCLEO</div>
+  <div id="restorationStatus">SINCRO DEL TEMPLO: 0%</div>
+</div>
+
+<div id="gameMsg">
+  Cruza el puente hacia el Núcleo y coloca las tres insignias.
+</div>
+
+<div id="joystick-zone"></div>
+
+<div class="scroll-ui" id="finalScrollUI"></div>
+
+<a-scene cursor="rayOrigin: mouse; interval: 10" vr-mode-ui="enabled: false">
+
+  <a-sky id="cielo" color="#18002a"></a-sky>
+
+  <a-entity id="particulas">
+    <a-sphere color="#00f0ff" radius="0.03" position="-10 6 -15"
+      animation="property: position; to: -10 9 -15; dir: alternate; dur: 3000; loop: true"></a-sphere>
+
+    <a-sphere color="#bd00ff" radius="0.04" position="8 8 -18"
+      animation="property: position; to: 8 11 -18; dir: alternate; dur: 2500; loop: true"></a-sphere>
+
+    <a-sphere color="#ffffff" radius="0.03" position="-6 10 -12"
+      animation="property: position; to: -6 13 -12; dir: alternate; dur: 4000; loop: true"></a-sphere>
+
+    <a-sphere color="#00ffcc" radius="0.03" position="12 7 -25"
+      animation="property: position; to: 12 10 -25; dir: alternate; dur: 3500; loop: true"></a-sphere>
+
+    <a-sphere color="#ffd700" radius="0.03" position="-14 9 -22"
+      animation="property: position; to: -14 12 -22; dir: alternate; dur: 4500; loop: true"></a-sphere>
+  </a-entity>
+
+  <a-light type="ambient" color="#543c7a" intensity="0.5"></a-light>
+  <a-light type="directional" color="#00f0ff" intensity="0.7" position="0 8 3"></a-light>
+
+  <a-box id="puente"
+         color="#1c1f24"
+         width="2.4"
+         height="0.3"
+         depth="11"
+         position="0 -0.15 5.5">
+  </a-box>
+
+  <a-cylinder color="#14151b"
+              radius="9"
+              height="0.4"
+              position="0 -0.2 -5">
+  </a-cylinder>
+
+  <a-box color="#090a0f" width="1.2" height="5.5" depth="1.2" position="-6 2.75 -9.5"></a-box>
+  <a-box color="#090a0f" width="1.2" height="5.5" depth="1.2" position="6 2.75 -9.5"></a-box>
+  <a-box color="#090a0f" width="1.2" height="5.5" depth="1.2" position="-7 2.75 -4.5"></a-box>
+  <a-box color="#090a0f" width="1.2" height="5.5" depth="1.2" position="7 2.75 -4.5"></a-box>
+
+  <a-entity id="altarFusional" position="0 0 -5">
+
+    <a-cylinder color="#181b22" radius="0.4" height="1.2"
+                position="-1.5 0.6 0"
+                onclick="activarPedestal(1)">
+      <a-octahedron id="insigniaCian"
+                    color="#00f0ff"
+                    radius="0.22"
+                    position="0 1.2 0"
+                    visible="false">
+      </a-octahedron>
+    </a-cylinder>
+
+    <a-cylinder color="#181b22" radius="0.4" height="1.2"
+                position="0 0.6 0"
+                onclick="activarPedestal(2)">
+      <a-torus id="insigniaMagenta"
+               color="#bd00ff"
+               radius="0.18"
+               radius-tubular="0.02"
+               position="0 1.2 0"
+               visible="false">
+      </a-torus>
+    </a-cylinder>
+
+    <a-cylinder color="#181b22" radius="0.4" height="1.2"
+                position="1.5 0.6 0"
+                onclick="activarPedestal(3)">
+      <a-tetrahedron id="insigniaOro"
+                     color="#ffd700"
+                     radius="0.2"
+                     position="0 1.2 0"
+                     visible="false">
+      </a-tetrahedron>
+    </a-cylinder>
+
+  </a-entity>
+
+  <a-entity id="cristalNucleo" position="0 7 -5">
+    <a-dodecahedron color="#333"
+                    radius="0.6"
+                    animation="property: rotation; to: 360 360 360; dur: 8000; loop: true">
+    </a-dodecahedron>
+
+    <a-light id="luzNucleo"
+             type="point"
+             color="#fff"
+             intensity="0.3"
+             distance="6">
+    </a-light>
+  </a-entity>
+
+  <a-entity id="rig" position="0 0 10">
+    <a-camera id="camera"
+              look-controls="pointerLockEnabled: false; touchEnabled: true"
+              wasd-controls-enabled="false"
+              position="0 1.6 0">
+      <a-cursor color="#00f0ff"></a-cursor>
+    </a-camera>
+  </a-entity>
+
+</a-scene>
+
+<script>
+
+if (!localStorage.getItem("usuarioActivo")) {
+  window.location.href = "index.html";
+}
+
+const rig = document.getElementById('rig');
+const camera = document.getElementById('camera');
+
+let moveDirection = { x: 0, z: 0 };
+const movementSpeed = 0.08;
+
+window.onload = () => {
+
+  const usuario = localStorage.getItem("usuarioActivo");
+  // CAMBIO: Apunta a la nueva base de datos
+  const usuariosDB = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
+  const logros = usuariosDB[usuario]?.logros || {};
+
+  // CAMBIO: Verifica las nuevas reliquias
+  if (!(logros.relic1 && logros.relic2 && logros.relic3)) {
+    alert("🔒 Necesitas todas las insignias para acceder al Núcleo.");
+    window.location.href = "menu.html";
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  setTimeout(() => {
+
+    const manager = nipplejs.create({
+      zone: document.getElementById('joystick-zone'),
+      mode: 'static',
+      position: { left: '60px', top: '60px' },
+      color: '#00f0ff',
+      size: 90
+    });
+
+    manager.on('move', function (evt, data) {
+
+      if (!data.vector) return;
+
+      const rotation = camera.getAttribute('rotation');
+      const angle = (rotation.y * Math.PI) / 180;
+
+      const forward = data.vector.y;
+      const side = data.vector.x;
+
+      moveDirection.x =
+        (side * Math.cos(angle) - forward * Math.sin(angle))
+        * movementSpeed;
+
+      moveDirection.z =
+        (-side * Math.sin(angle) - forward * Math.cos(angle))
+        * movementSpeed;
+    });
+
+    manager.on('end', function () {
+      moveDirection.x = 0;
+      moveDirection.z = 0;
+    });
+
+  }, 500);
+
+});
+
+function verificarMovimiento(x, z) {
+
+  if (z >= 3) {
+    return (x >= -1.2 && x <= 1.2 && z <= 11);
+  }
+
+  const distanciaCentro = Math.hypot(x, z + 5);
+
+  return distanciaCentro <= 8.5;
+}
+
+function tick() {
+
+  if (moveDirection.x !== 0 || moveDirection.z !== 0) {
+
+    const pos = rig.getAttribute('position');
+
+    const nx = pos.x + moveDirection.x;
+    const nz = pos.z + moveDirection.z;
+
+    if (verificarMovimiento(nx, nz)) {
+      rig.setAttribute('position', {
+        x: nx,
+        y: pos.y,
+        z: nz
+      });
+    }
+  }
+
+  requestAnimationFrame(tick);
+}
+
+tick();
+
+let medallasColocadas = {
+  1: false,
+  2: false,
+  3: false
+};
+
+function activarPedestal(id) {
+
+  const usuario = localStorage.getItem("usuarioActivo");
+  // CAMBIO: Conexión a la nueva base de datos
+  const usuariosDB = JSON.parse(localStorage.getItem("usuarios_registrados")) || {};
+  const logros = usuariosDB[usuario]?.logros || {};
+
+  let clave = "";
+  let visual = "";
+  let nombre = "";
+
+  // CAMBIO: Uso de los nombres de la nueva base de datos (relic1, relic2, relic3)
+  if (id === 1) {
+    clave = "relic1";
+    visual = "#insigniaCian";
+    nombre = "Insignia Cian";
+  }
+
+  if (id === 2) {
+    clave = "relic2";
+    visual = "#insigniaMagenta";
+    nombre = "Insignia Magenta";
+  }
+
+  if (id === 3) {
+    clave = "relic3";
+    visual = "#insigniaOro";
+    nombre = "Insignia Dorada";
+  }
+
+  if (!logros[clave]) {
+    document.getElementById("gameMsg").innerText =
+      "❌ No posees esta insignia.";
+    return;
+  }
+
+  if (medallasColocadas[id]) {
+    return;
+  }
+
+  medallasColocadas[id] = true;
+
+  const insignia = document.querySelector(visual);
+
+  insignia.setAttribute("visible", true);
+
+  insignia.setAttribute(
+    "animation",
+    "property: rotation; to: 360 360 360; dur: 4000; loop: true"
+  );
+
+  insignia.setAttribute(
+    "animation__float",
+    "property: position; to: 0 1.45 0; dir: alternate; dur: 1500; loop: true"
+  );
+
+  document.getElementById("gameMsg").innerText =
+    `✔ ${nombre} sincronizada correctamente.`;
+
+  actualizarHUD();
+
+  verificarFusionCompleta();
+}
+
+function actualizarHUD() {
+
+  const activas =
+    Object.values(medallasColocadas)
+    .filter(v => v).length;
+
+  const porcentaje = Math.round((activas / 3) * 100);
+
+  document.getElementById("restorationStatus").innerText =
+    `SINCRO DEL TEMPLO: ${porcentaje}%`;
+}
+
+function verificarFusionCompleta() {
+
+  const completo =
+    Object.values(medallasColocadas)
+    .every(v => v);
+
+  if (!completo) return;
+
+  const cielo = document.getElementById("cielo");
+
+  document.getElementById("gameMsg").innerText =
+    "⚡ FUSIÓN DEL NÚCLEO INICIADA...";
+
+  cielo.setAttribute(
+    "animation",
+    "property: color; to: #00f0ff; dir: alternate; dur: 250; loop: 20"
+  );
+
+  const nucleo = document.getElementById("cristalNucleo");
+
+  nucleo.setAttribute(
+    "animation__descend",
+    "property: position; to: 0 1.8 -5; dur: 3500; easing: easeOutElastic"
+  );
+
+  document.getElementById("luzNucleo")
+    .setAttribute("intensity", "5");
+
+  setTimeout(() => {
+
+    document.getElementById("gameMsg").style.display = "none";
+
+    const panel = document.getElementById("finalScrollUI");
+
+    panel.style.display = "block";
+
+    panel.innerHTML = `
+      <div class="scroll-title">
+        ¡SINCRONIZACIÓN COMPLETA!
+      </div>
+
+      <div class="scroll-content">
+        <p>
+          Has fusionado exitosamente las reliquias del conocimiento,
+          la interacción y la estructura digital.
+        </p>
+
+        <p style="color:#00ffcc;">
+          EL NÚCLEO DEL APRENDIZAJE HA DESPERTADO.
+        </p>
+
+        <p>
+          Tu aventura en la realidad aumentada y la gamificación
+          ha sido completada con éxito.
+        </p>
+      </div>
+
+      <button class="scroll-btn" onclick="finalizarJuego()">
+        FINALIZAR EXPERIENCIA
+      </button>
+    `;
+
+    // CAMBIO: Usar la nueva función registrarAvanceGlobal de data.js
+    if (typeof registrarAvanceGlobal === "function") {
+        registrarAvanceGlobal(
+            "nucleo", 
+            null, 
+            5000, 
+            "Evidencia Final: Restauración completa del Núcleo del Aprendizaje."
+        );
+    }
+
+  }, 5000);
+}
+
+function finalizarJuego() {
+
+  alert("🌌 El portal se ha cerrado correctamente.");
+
+  window.location.href = "menu.html";
+}
+
+</script>
+
+</body>
+</html>

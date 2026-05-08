@@ -22,6 +22,13 @@
         }
         @media (orientation: portrait) { #orientation-blocker { display: flex; } }
 
+        /* BOTÓN ABANDONAR */
+        #btn-menu {
+            position: fixed; top: 20px; right: 20px; z-index: 100; padding: 10px 20px; border: 1px solid #ffd700;
+            border-radius: 8px; background: rgba(255, 215, 0, 0.1); color: #ffd700; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
+        }
+        #btn-menu:hover { background: #ffd700; color: #000; }
+
         /* HUD */
         #hud-top {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -51,6 +58,13 @@
             animation: slideIn 0.5s ease-out;
         }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* PANTALLA DE VICTORIA PARA MÓVIL */
+        #victory-screen {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        #victory-screen h1 { font-family: 'Orbitron'; color: #ffd700; text-shadow: 0 0 20px #ffd700; font-size: 2.5rem; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -59,6 +73,8 @@
         <h2 style="font-family: 'Orbitron'; color:#ffd700;">GIRA EL DISPOSITIVO</h2>
         <p>Modo panorámico necesario para la sincronización.</p>
     </div>
+
+    <button id="btn-menu" onclick="window.location.href='menu.html'">⬅ ABANDONAR</button>
 
     <div id="hud-top">
         <div class="mission-text">NIVEL 1: EL DESPERTAR</div>
@@ -73,6 +89,12 @@
         <div style="border-top: 1px solid #00f0ff; padding-top:10px; color:#ffd700; font-weight:bold;">
             DÍGITO RECUPERADO: <span id="holo-digit" style="font-size:1.5rem;">?</span>
         </div>
+    </div>
+
+    <div id="victory-screen">
+        <h1>✨ RELIQUIA DE INTUICIÓN ✨</h1>
+        <p style="font-size: 1.2rem; max-width: 600px; color: #ccc;">Sincronización inicial completa. Has abierto el portal del Restaurador.</p>
+        <button style="margin-top:30px; padding:15px 40px; font-family:'Orbitron'; font-weight:bold; background:#ffd700; border:none; border-radius:8px; cursor:pointer;" onclick="window.location.href='menu.html'">VOLVER AL PORTAL</button>
     </div>
 
     <div id="code-panel">
@@ -197,11 +219,12 @@
             document.getElementById("relic-light").setAttribute("animation", "property: intensity; to: 5; dur: 2000");
 
             setTimeout(() => {
+                // AQUÍ APARECE LA PANTALLA EN LUGAR DEL ALERT
+                document.getElementById("victory-screen").style.display = "flex";
+
                 if(typeof registrarAvanceGlobal === "function") {
                     registrarAvanceGlobal("intro", "relic1", 500, "Nivel 1: Sincronización completa. El Restaurador ha despertado la Reliquia de la Intuición.");
                 }
-                alert("¡RELIQUIA SINCRONIZADA! Volviendo al Centro de Mando...");
-                window.location.href = "menu.html";
             }, 3500);
         }
 

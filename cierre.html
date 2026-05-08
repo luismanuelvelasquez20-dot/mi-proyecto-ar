@@ -9,7 +9,7 @@
     
     body { margin: 0; overflow: hidden; background: #000; }
     
-    /* CAPA DE CRÉDITOS QUE FLOTAN SOBRE EL 3D */
+    /* Capa de créditos holográficos */
     #credits-overlay {
       position: fixed;
       top: 0;
@@ -61,15 +61,18 @@
 <body>
 
   <div id="credits-overlay">
-    <div class="title">PROYECTO RA</div>
+    <div class="title">RESTAURADORES DEL APRENDIZAJE</div>
     <div class="subtitle">Sincronización de Mundos Completada</div>
     
-    <div class="credit-line" style="animation-delay: 2s;">Diseño y Desarrollo: <b>Tu Nombre</b></div>
-    <div class="credit-line" style="animation-delay: 4s;">Concepto Pedagógico: <b>John Dewey</b></div>
+    <div class="credit-line" style="animation-delay: 2s;">Diseño y Desarrollo: <b>Luis</b></div>
+    <div class="credit-line" style="animation-delay: 4s;">Concepto Pedagógico: <b>Gamificación Inmersiva</b></div>
     <div class="credit-line" style="animation-delay: 6s;">Tecnologías: <b>A-Frame, WebXR & HTML5</b></div>
-    <div class="credit-line" style="animation-delay: 8s;">"El aprendizaje es la vida misma."</div>
+    <div class="credit-line" style="animation-delay: 8s;">"Restaurar el asombro para transformar la educación."</div>
 
-    <button class="btn-exit" onclick="window.location.href='index.html'" style="animation-delay: 10s; opacity:0; animation: fadeIn 2s forwards 10s;">REINICIAR SISTEMA</button>
+    <button class="btn-exit" onclick="window.location.href='index.html'" 
+            style="animation-delay: 10s; opacity:0; animation: fadeIn 2s forwards 10s;">
+      REINICIAR SISTEMA
+    </button>
   </div>
 
   <a-scene vr-mode-ui="enabled: false">
@@ -77,34 +80,36 @@
     
     <a-entity position="0 1.5 -5">
       <a-dodecahedron color="#00f0ff" radius="1.5" material="wireframe: true;"
-                      animation="property: rotation; to: 360 360 0; dur: 20000; loop: true; easing: linear"></a-dodecahedron>
+                      animation="property: rotation; to: 360 360 0; dur: 20000; loop: true; easing: linear">
+      </a-dodecahedron>
       
       <a-dodecahedron color="#bd00ff" radius="0.8"
-                      animation="property: rotation; to: -360 0 360; dur: 15000; loop: true; easing: linear"></a-dodecahedron>
+                      animation="property: rotation; to: -360 0 360; dur: 15000; loop: true; easing: linear">
+      </a-dodecahedron>
       
       <a-light type="point" color="#00f0ff" intensity="2" distance="10"></a-light>
     </a-entity>
 
     <a-entity id="particles">
       <script>
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 60; i++) {
           let p = document.createElement('a-sphere');
           p.setAttribute('color', Math.random() > 0.5 ? '#00f0ff' : '#ffd700');
           p.setAttribute('radius', '0.02');
-          let x = (Math.random() - 0.5) * 20;
-          let y = (Math.random() - 0.5) * 10;
-          let z = (Math.random() - 0.5) * 20;
+          let x = (Math.random() - 0.5) * 25;
+          let y = (Math.random() - 0.5) * 15;
+          let z = (Math.random() - 0.5) * 25;
           p.setAttribute('position', `${x} ${y} ${z}`);
-          p.setAttribute('animation', `property: position; to: ${x} ${y + 2} ${z}; dir: alternate; dur: ${2000 + Math.random()*3000}; loop: true; easing: easeInOutQuad`);
+          p.setAttribute('animation', `property: position; to: ${x} ${y + 1} ${z}; dir: alternate; dur: ${3000 + Math.random()*4000}; loop: true; easing: easeInOutQuad`);
           document.querySelector('a-scene').appendChild(p);
         }
       </script>
     </a-entity>
 
-    <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 40000; loop: true; easing: linear">
-      <a-camera position="0 1.6 8" look-controls-enabled="false"></a-camera>
+    <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 60000; loop: true; easing: linear">
+      <a-camera position="0 1.6 10" look-controls-enabled="false"></a-camera>
     </a-entity>
   </a-scene>
 
 </body>
-</html>S
+</html>

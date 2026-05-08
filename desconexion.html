@@ -15,6 +15,13 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #020005; font-family: 'Rajdhani', sans-serif; }
 
+        /* BLOQUEADOR DE ORIENTACIÓN OBLIGATORIO */
+        #orientation-blocker {
+            display: none; position: fixed; inset: 0; background: #020005; z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
+        }
+        @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
         /* HUD Narrativo */
         #status-hud {
             position: fixed; top: 20px; left: 20px; z-index: 100;
@@ -31,10 +38,10 @@
 
         #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
 
-        /* Lore Box (Holograma Corrupto) */
+        /* Lore Box (Holograma de Reporte) */
         #lore-box {
             position: fixed; top: 50%; right: 40px; transform: translateY(-50%); width: 280px;
-            background: rgba(10, 0, 20, 0.9); border-right: 5px solid #bd00ff;
+            background: rgba(10, 0, 20, 0.95); border-right: 5px solid #bd00ff;
             padding: 20px; color: #e0e0e0; border-radius: 10px 0 0 10px;
             display: none; animation: slideIn 0.4s ease-out; z-index: 90;
             box-shadow: -10px 0 20px rgba(189, 0, 255, 0.2);
@@ -43,6 +50,11 @@
     </style>
 </head>
 <body>
+
+    <div id="orientation-blocker">
+        <h2 style="font-family: 'Orbitron'; color:#bd00ff;">GIRA TU DISPOSITIVO</h2>
+        <p>El abismo de la desconexión es demasiado profundo para el modo vertical.</p>
+    </div>
 
     <div id="status-hud">
         <h2 style="margin:0;">ZONA: ABISMO-B (DESCONEXIÓN)</h2>
@@ -57,41 +69,42 @@
         <p id="lore-text" style="font-size: 1rem; line-height: 1.4; margin-top: 10px;">...</p>
     </div>
 
-    <a-scene fog="type: exponential; color: #0a0015; density: 0.07" vr-mode-ui="enabled: false">
+    <a-scene fog="type: exponential; color: #0a0015; density: 0.08" vr-mode-ui="enabled: false">
         
         <a-sky color="#050010"></a-sky>
 
-        <a-grid position="0 0 0" rotation="-90 0 0" width="100" height="100" static-body material="color: #4b0082; opacity: 0.2; transparent: true;"></a-grid>
+        <a-grid position="0 0 0" rotation="-90 0 0" width="100" height="100" static-body material="color: #4b0082; opacity: 0.15; transparent: true;"></a-grid>
 
         <a-entity id="abismo-objetos">
             <script>
                 const scene = document.querySelector('a-scene');
-                for(let i=0; i<15; i++){
+                for(let i=0; i<20; i++){
                     let obj = document.createElement('a-box');
-                    let x = (Math.random() - 0.5) * 20;
-                    let y = Math.random() * 5 + 1;
-                    let z = (Math.random() - 0.5) * 20 - 10;
+                    let x = (Math.random() - 0.5) * 25;
+                    let y = Math.random() * 6 + 1;
+                    let z = (Math.random() - 0.5) * 25 - 10;
                     obj.setAttribute('position', `${x} ${y} ${z}`);
-                    obj.setAttribute('width', Math.random() + 0.5);
-                    obj.setAttribute('height', Math.random() + 0.5);
-                    obj.setAttribute('depth', 0.2);
+                    obj.setAttribute('width', Math.random() + 0.4);
+                    obj.setAttribute('height', Math.random() + 0.4);
+                    obj.setAttribute('depth', '0.1');
                     obj.setAttribute('color', '#1a0033');
-                    obj.setAttribute('material', 'metalness: 0.8; roughness: 0.2');
-                    obj.setAttribute('animation', `property: rotation; to: ${Math.random()*360} ${Math.random()*360} 0; loop: true; dur: ${Math.random()*5000 + 5000}`);
+                    obj.setAttribute('material', 'metalness: 0.9; roughness: 0.1');
+                    obj.setAttribute('animation', `property: rotation; to: ${Math.random()*360} ${Math.random()*360} 0; loop: true; dur: ${Math.random()*6000 + 4000}`);
                     scene.appendChild(obj);
                 }
             </script>
         </a-entity>
 
-        <a-entity id="nodo-final" position="0 1.5 -15">
-            <a-torus-knot radius="0.6" radius-tubular="0.05" color="#bd00ff" 
-                          animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"></a-torus-knot>
-            <a-light type="point" color="#bd00ff" intensity="2" distance="10"></a-light>
-            <a-text value="RECONECTAR" position="0 1.2 0" align="center" width="5" color="#bd00ff" font="orbitron"></a-text>
+        <a-entity id="nodo-final" position="0 1.5 -18">
+            <a-torus-knot radius="0.7" radius-tubular="0.04" color="#bd00ff" 
+                          material="emissive: #bd00ff; emissiveIntensity: 2"
+                          animation="property: rotation; to: 0 360 0; loop: true; dur: 2500"></a-torus-knot>
+            <a-light type="point" color="#bd00ff" intensity="2" distance="12"></a-light>
+            <a-text value="RECONECTAR" position="0 1.5 0" align="center" width="6" color="#bd00ff" font="orbitron"></a-text>
         </a-entity>
 
-        <a-cylinder position="5 0 -10" radius="0.01" height="50" color="#bd00ff" rotation="90 45 0" opacity="0.3"></a-cylinder>
-        <a-cylinder position="-5 0 -10" radius="0.01" height="50" color="#bd00ff" rotation="90 -45 0" opacity="0.3"></a-cylinder>
+        <a-cylinder position="10 0 -15" radius="0.02" height="60" color="#bd00ff" rotation="90 30 0" opacity="0.2"></a-cylinder>
+        <a-cylinder position="-10 0 -15" radius="0.02" height="60" color="#bd00ff" rotation="90 -30 0" opacity="0.2"></a-cylinder>
 
         <a-entity id="rig" position="0 0 5">
             <a-camera id="camera" look-controls="pointerLockEnabled: false"></a-camera>
@@ -100,7 +113,10 @@
     </a-scene>
 
     <script>
-        // Configuración del Joystick
+        // 1. Seguridad
+        if(!localStorage.getItem("usuarioActivo")) window.location.href="index.html";
+
+        // 2. Joystick
         const manager = nipplejs.create({
             zone: document.getElementById('joystick-zone'),
             mode: 'static', position: {left: '60px', bottom: '60px'},
@@ -113,49 +129,52 @@
 
         manager.on('move', (evt, data) => {
             const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
-            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.12;
-            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.12;
+            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.13;
+            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.13;
         });
         manager.on('end', () => { moveX = 0; moveZ = 0; });
 
-        // Mensajes de Lore para la Desconexión
-        const puntosDeBrecha = [
-            { pos: {x: 0, z: 2}, texto: "La tecnología sin propósito es solo un adorno costoso en el aula." },
-            { pos: {x: 0, z: -5}, texto: "Millones de dispositivos están encendidos, pero la curiosidad sigue apagada." },
-            { pos: {x: 0, z: -10}, texto: "La verdadera desconexión ocurre cuando el sistema ignora el lenguaje digital de sus estudiantes." }
+        // 3. Lore de la Brecha
+        const puntosReporte = [
+            { x: 0, z: 2, texto: "Advertencia: El 40% de los dispositivos entregados terminan en desuso por falta de propósito pedagógico." },
+            { x: -5, z: -6, texto: "Error de sistema: La brecha no es solo el WiFi, es el lenguaje que el aula no habla." },
+            { x: 5, z: -12, texto: "Dato crítico: Entregar tecnología sin formación es como dar un libro a quien no sabe leer." },
+            { x: 0, z: -15, texto: "Nodo de reconexión detectado. Sincroniza para cerrar la brecha." }
         ];
 
-        function gameLoop() {
+        function loop() {
             const pos = rig.getAttribute('position');
             pos.x += moveX; pos.z += moveZ;
             rig.setAttribute('position', pos);
 
-            // Mostrar Lore según cercanía
-            let cercaDePunto = false;
-            puntosDeBrecha.forEach(p => {
-                const dist = Math.hypot(pos.x - p.pos.x, pos.z - p.pos.z);
-                if(dist < 3.5) {
+            // Control de Hologramas
+            let cerca = false;
+            puntosReporte.forEach(p => {
+                const d = Math.hypot(pos.x - p.x, pos.z - p.z);
+                if(d < 4) {
                     document.getElementById("lore-text").innerText = p.texto;
                     document.getElementById("lore-box").style.display = "block";
-                    cercaDePunto = true;
+                    cerca = true;
                 }
             });
-            if(!cercaDePunto) document.getElementById("lore-box").style.display = "none";
+            if(!cerca) document.getElementById("lore-box").style.display = "none";
 
-            // Verificar llegada al Nodo Final
-            const distFinal = Math.hypot(pos.x, pos.z + 15);
-            if(distFinal < 1.5) {
-                // Registrar descubrimiento (usando la función de tu data.js si quieres)
+            // Final: Tocar el Nodo Magenta
+            const distFinal = Math.hypot(pos.x, pos.z + 18);
+            if(distFinal < 1.6) {
                 if(typeof registrarAvanceGlobal === "function") {
-                    registrarAvanceGlobal(null, null, 250, "Misión Desconexión: Entendiendo la brecha digital.");
+                    registrarAvanceGlobal(null, null, 250, "Fragmento de Desconexión analizado: La tecnología requiere un puente de sentido.");
                 }
-                alert("NODO RECONECTADO: Has entendido el origen de la brecha. Regresando al Dashboard.");
+                alert("NODO RECONECTADO: Has identificado el origen de la brecha digital.");
                 window.location.href = 'menu.html';
             }
 
-            requestAnimationFrame(gameLoop);
+            requestAnimationFrame(loop);
         }
-        gameLoop();
+        loop();
+    </script>
+</body>
+</html>        gameLoop();
     </script>
 </body>
 </html>

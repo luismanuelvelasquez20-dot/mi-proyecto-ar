@@ -15,10 +15,17 @@
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f0faff; font-family: 'Rajdhani', sans-serif; }
 
+        /* BLOQUEADOR DE ORIENTACIÓN OBLIGATORIO */
+        #orientation-blocker {
+            display: none; position: fixed; inset: 0; background: #f0faff; z-index: 10000;
+            justify-content: center; align-items: center; flex-direction: column; color: #0088aa; text-align: center;
+        }
+        @media (orientation: portrait) { #orientation-blocker { display: flex; } }
+
         /* HUD Narrativo */
         #status-hud {
             position: fixed; top: 20px; left: 20px; z-index: 100;
-            color: #00f0ff; font-family: 'Orbitron'; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            color: #0088aa; font-family: 'Orbitron'; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
             pointer-events: none;
         }
 
@@ -31,10 +38,10 @@
 
         #joystick-zone { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
 
-        /* Lore Box (Interfaz Limpia) */
+        /* Lore Box (Interfaz de Inspiración) */
         #lore-box {
             position: fixed; bottom: 40px; right: 40px; width: 300px;
-            background: rgba(255, 255, 255, 0.9); border-right: 5px solid #00f0ff;
+            background: rgba(255, 255, 255, 0.95); border-right: 5px solid #00f0ff;
             padding: 20px; color: #333; border-radius: 10px 0 0 10px;
             display: none; animation: slideUp 0.4s ease-out; z-index: 90;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -44,9 +51,14 @@
 </head>
 <body>
 
+    <div id="orientation-blocker">
+        <h2 style="font-family: 'Orbitron'; color:#00f0ff;">GIRA TU DISPOSITIVO</h2>
+        <p>Para explorar nuevas fronteras, expande tu horizonte a modo horizontal.</p>
+    </div>
+
     <div id="status-hud">
-        <h2 style="margin:0; color: #0088aa;">ZONA: NEXO-C (EXPLORACIÓN)</h2>
-        <small style="color: #00bfff;">ESTADO: CREATIVIDAD AL 100%</small>
+        <h2 style="margin:0;">ZONA: NEXO-C (EXPLORACIÓN)</h2>
+        <small style="color: #00bfff;">ESTADO: CREATIVIDAD ACTIVA</small>
     </div>
 
     <button id="btn-back" onclick="window.location.href='menu.html'">REGRESAR AL DASHBOARD</button>
@@ -62,42 +74,42 @@
         <a-sky color="#dbf3ff"></a-sky>
 
         <a-plane rotation="-90 0 0" width="100" height="100" color="#ffffff" material="metalness: 0.6; roughness: 0.1; opacity: 0.8; transparent: true;"></a-plane>
-        <a-grid position="0 0.01 0" rotation="-90 0 0" width="100" height="100" static-body material="color: #00f0ff; opacity: 0.1;"></a-grid>
+        <a-grid position="0 0.01 0" rotation="-90 0 0" width="100" height="100" material="color: #00f0ff; opacity: 0.15;"></a-grid>
 
         <a-entity id="estructuras">
             <script>
                 const scene = document.querySelector('a-scene');
-                for(let i=0; i<12; i++){
-                    let x = (Math.random() - 0.5) * 30;
-                    let z = (Math.random() - 0.5) * 30 - 10;
+                for(let i=0; i<15; i++){
+                    let x = (Math.random() - 0.5) * 35;
+                    let z = (Math.random() - 0.5) * 35 - 10;
                     
-                    // Columnas
+                    // Columnas de luz
                     let col = document.createElement('a-cylinder');
                     col.setAttribute('position', `${x} 5 ${z}`);
-                    col.setAttribute('radius', '0.1');
+                    col.setAttribute('radius', '0.05');
                     col.setAttribute('height', '10');
                     col.setAttribute('color', '#00f0ff');
-                    col.setAttribute('opacity', '0.3');
+                    col.setAttribute('opacity', '0.4');
                     scene.appendChild(col);
 
-                    // Cubos flotantes
+                    // Cubos de cristal flotantes
                     let box = document.createElement('a-box');
-                    box.setAttribute('position', `${x} ${Math.random()*4 + 1} ${z}`);
-                    box.setAttribute('width', '0.5'); box.setAttribute('height', '0.5'); box.setAttribute('depth', '0.5');
+                    box.setAttribute('position', `${x} ${Math.random()*4 + 1.5} ${z}`);
+                    box.setAttribute('width', '0.6'); box.setAttribute('height', '0.6'); box.setAttribute('depth', '0.6');
                     box.setAttribute('color', '#fff');
-                    box.setAttribute('material', 'metalness: 0.9; roughness: 0.1');
-                    box.setAttribute('animation', `property: rotation; to: 360 360 0; loop: true; dur: ${Math.random()*4000 + 3000}`);
+                    box.setAttribute('material', 'metalness: 1; roughness: 0; opacity: 0.7; transparent: true');
+                    box.setAttribute('animation', `property: rotation; to: 360 360 360; loop: true; dur: ${Math.random()*5000 + 4000}`);
                     scene.appendChild(box);
                 }
             </script>
         </a-entity>
 
-        <a-entity id="faro-final" position="0 0 -20">
-            <a-cone radius-bottom="2" radius-top="0" height="4" color="#ffffff" material="opacity: 0.5; transparent: true;"></a-cone>
-            <a-sphere position="0 4 0" radius="0.8" color="#ffd700" material="emissive: #ffd700; emissiveIntensity: 2;"
-                      animation="property: position; to: 0 4.5 0; dir: alternate; dur: 2000; loop: true"></a-sphere>
-            <a-light type="point" color="#ffd700" intensity="1.5" distance="15" position="0 4 0"></a-light>
-            <a-text value="CREAR" position="0 2.5 0" align="center" width="6" color="#0088aa" font="orbitron"></a-text>
+        <a-entity id="faro-final" position="0 0 -22">
+            <a-cone radius-bottom="2.5" radius-top="0" height="5" color="#ffffff" material="opacity: 0.4; transparent: true;"></a-cone>
+            <a-sphere position="0 4.5 0" radius="0.9" color="#ffd700" material="emissive: #ffd700; emissiveIntensity: 2.5;"
+                      animation="property: position; to: 0 5 0; dir: alternate; dur: 2500; loop: true; easing: easeInOutSine"></a-sphere>
+            <a-light type="point" color="#ffd700" intensity="2" distance="15" position="0 4.5 0"></a-light>
+            <a-text value="CREAR" position="0 2.8 0" align="center" width="7" color="#0088aa" font="orbitron"></a-text>
         </a-entity>
 
         <a-entity id="rig" position="0 0 5">
@@ -107,7 +119,10 @@
     </a-scene>
 
     <script>
-        // Joystick
+        // 1. Seguridad de Sesión
+        if(!localStorage.getItem("usuarioActivo")) window.location.href="index.html";
+
+        // 2. Configuración del Joystick
         const manager = nipplejs.create({
             zone: document.getElementById('joystick-zone'),
             mode: 'static', position: {left: '60px', bottom: '60px'},
@@ -120,16 +135,18 @@
 
         manager.on('move', (evt, data) => {
             const rotY = camera.getAttribute('rotation').y * Math.PI / 180;
-            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.15;
-            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.15;
+            // Movimiento suave y rápido para exploración
+            moveX = (data.vector.x * Math.cos(rotY) - data.vector.y * Math.sin(rotY)) * 0.16;
+            moveZ = (-data.vector.x * Math.sin(rotY) - data.vector.y * Math.cos(rotY)) * 0.16;
         });
         manager.on('end', () => { moveX = 0; moveZ = 0; });
 
-        // Mensajes de Inspiración
+        // 3. Mensajes de Inspiración
         const hitosInspiracion = [
-            { pos: {x: 0, z: 0}, texto: "Explorar es el primer paso para dejar de ser un espectador y convertirte en creador." },
-            { pos: {x: 0, z: -8}, texto: "La Realidad Aumentada no solo cambia lo que ves, cambia lo que puedes imaginar." },
-            { pos: {x: 0, z: -16}, texto: "El futuro de la educación no está en los libros, sino en las manos de quienes se atreven a inventar." }
+            { x: 0, z: 2, texto: "Bienvenido al Nexo de Exploración. Aquí, la tecnología no es una carga, sino una extensión de tu mente." },
+            { x: -6, z: -8, texto: "La Realidad Aumentada nos permite ver el mundo no como es, sino como podría ser." },
+            { x: 6, z: -14, texto: "Crear es el acto más revolucionario que un Restaurador puede realizar en el aula." },
+            { x: 0, z: -19, texto: "Has llegado al Faro de la Creación. Absorbe la chispa para fortalecer el Núcleo." }
         ];
 
         function gameLoop() {
@@ -137,22 +154,25 @@
             pos.x += moveX; pos.z += moveZ;
             rig.setAttribute('position', pos);
 
-            let cerca = false;
+            // Control de visibilidad de los mensajes
+            let cercaDeHito = false;
             hitosInspiracion.forEach(h => {
-                if(Math.hypot(pos.x - h.pos.x, pos.z - h.pos.z) < 4) {
+                const dist = Math.hypot(pos.x - h.x, pos.z - h.z);
+                if(dist < 4.5) {
                     document.getElementById("lore-text").innerText = h.texto;
                     document.getElementById("lore-box").style.display = "block";
-                    cerca = true;
+                    cercaDeHito = true;
                 }
             });
-            if(!cerca) document.getElementById("lore-box").style.display = "none";
+            if(!cercaDeHito) document.getElementById("lore-box").style.display = "none";
 
-            // Final
-            if(Math.hypot(pos.x, pos.z + 20) < 2.5) {
+            // Final: Tocar el Faro Dorado
+            const distFinal = Math.hypot(pos.x, pos.z + 22);
+            if(distFinal < 2.2) {
                 if(typeof registrarAvanceGlobal === "function") {
-                    registrarAvanceGlobal(null, null, 300, "Misión Exploración: La chispa de la invención ha sido activada.");
+                    registrarAvanceGlobal(null, null, 300, "Fragmento de Exploración analizado: La creación es el motor del cambio.");
                 }
-                alert("SINCRO EXITOSA: Has absorbido el potencial creativo. Regresando al Dashboard.");
+                alert("SINCRO EXITOSA: Has absorbido el potencial creativo del nexo.");
                 window.location.href = 'menu.html';
             }
 
